@@ -5,10 +5,6 @@ const eventoService = require('./SERVICES/eventoService');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-});
-
 // --- CONFIGURAÇÕES ---
 app.use(cors()); // Importante para o navegador não bloquear o site
 app.use(express.json());
@@ -57,10 +53,8 @@ app.delete('/eventos/:id', (req, res) => {
         res.status(404).json({ mensagem: "Não encontrado" });
     }
 });
-
-
 // --- LIGAR SERVIDOR ---
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
- 30761dbc117397732b0a237a818c0933cb6a9b10
+ 
