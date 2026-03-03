@@ -58,7 +58,3 @@ app.delete('/eventos/:id', (req, res) => {
     }
 });
 
-// --- LIGAR SERVIDOR ---
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor verde rodando em http://localhost:${PORT}`);
-});
