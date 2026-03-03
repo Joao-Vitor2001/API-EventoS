@@ -1,89 +1,57 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amigos Do ROOTS🟢</title>
-    <style>
-        :root { --primary: #2ecc71; --dark-green: #27ae60; --bg: #f0f2f5; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 90px; }
-        header { background: var(--primary); color: white; padding: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+<!-- ... (mantenha o CSS igual, apenas adicionei os inputs abaixo) ... -->
+
+<div id="aba-eventos" class="section active">
+    <div class="card">
+        <h4 style="margin-top:0; color: var(--dark-green);" id="form-title">📅 Novo Evento</h4>
+        <input type="hidden" id="input-id">
         
-        .container { padding: 15px; }
-        .section { display: none; }
-        .active { display: block; }
-
-        .card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--primary); }
+        <label>Nome do Evento:</label>
+        <input type="text" id="input-nome" placeholder="Ex: Churrasco do Roots">
         
-        button { padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-save { background: var(--primary); color: white; width: 100%; font-size: 16px; }
-        .btn-save:hover { background: var(--dark-green); }
-        .btn-edit { background: #40c414; color: white; margin-right: 5px; }
-        .btn-del { background: #e74c3c; color: white; }
-
-        nav { 
-            position: fixed; bottom: 0; width: 100%; height: 75px;
-            background: white; display: flex; justify-content: space-around;
-            align-items: center; border-top: 1px solid #eee;
-        }
-        .nav-item { border: none; background: none; color: #95a5a6; font-size: 11px; display: flex; flex-direction: column; align-items: center; flex: 1; }
-        .nav-item i { font-size: 22px; margin-bottom: 3px; }
-        .nav-item.active-nav { color: var(--primary); }
-    </style>
-</head>
-<body>
-
-<header><h2 id="titulo-aba">Meus Eventos</h2></header>
-
-<div class="container">
-    <div id="aba-eventos" class="section active">
-        <div class="card">
-            <h4 style="margin-top:0; color: var(--dark-green);">📅 Novo Evento</h4>
-            <input type="hidden" id="input-id">
-            <input type="text" id="input-nome" placeholder="Nome do Evento">
-            <input type="date" id="input-data">
-            <button class="btn-save" onclick="salvarEvento()">Confirmar 🚀</button>
-        </div>
-        <div id="lista-eventos"></div>
+        <label>Data:</label>
+        <input type="date" id="input-data">
+        
+        <!-- NOVOS CAMPOS ADICIONADOS AQUI -->
+        <label>Local:</label>
+        <input type="text" id="input-local" placeholder="Ex: Rua das Flores, 123">
+        
+        <label>Participantes:</label>
+        <input type="text" id="input-participantes" placeholder="Ex: João, Maria, Pedro">
+        
+        <button class="btn-save" id="btn-confirmar" onclick="salvarEvento()">Confirmar 🚀</button>
+        <button id="btn-cancelar" style="display:none; width: 100%; margin-top: 5px; background: #bdc3c7;" onclick="limparForm()">Cancelar Edição</button>
     </div>
-
-    <!-- Outras abas (Ranking, Fotos, Buscar) permanecem as mesmas -->
-    <div id="aba-ranking" class="section"><div class="card"><h3>🏆 ROOTS-AWARDS </h3></div></div>
-    <div id="aba-fotos" class="section"><div class="card"><h3>📸 Fotos</h3></div></div>
-    <div id="aba-buscar" class="section"><div class="card"><h3>📍 Buscar Amigos</h3></div></div>
+    <div id="lista-eventos">Carregando eventos...</div>
 </div>
 
-<nav>
-    <button class="nav-item active-nav" onclick="navegar('eventos', 'Eventos', this)"><i>📅</i>Eventos</button>
-    <button class="nav-item" onclick="navegar('ranking', 'Ranking', this)"><i>🏆</i>ROOTS-AWARDS</button>
-    <button class="nav-item" onclick="navegar('fotos', 'Fotos', this)"><i>🖼️</i>Fotos</button>
-    <button class="nav-item" onclick="navegar('buscar', 'Buscar', this)"><i>📍</i>Buscar</button>
-</nav>
-
 <script>
-    const API_URL = 'https://api-eventos-9ket.onrender.com/eventos';
+    const API_URL = 'https://api-eventos-9ket.onrender.com';
 
     async function carregarEventos() {
         try {
             const res = await fetch(API_URL);
-            if(!res.ok) throw new Error("Erro na API");
             const eventos = await res.json();
             const divLista = document.getElementById('lista-eventos');
+            
             divLista.innerHTML = eventos.map(ev => `
                 <div class="card">
                     <strong style="font-size:18px">${ev.nome}</strong><br>
-                    <span style="color:#7f8c8d">🗓️ ${ev.data}</span>
+                    <small style="color:var(--dark-green)">🗓️ ${new Date(ev.data).toLocaleDateString('pt-BR')}</small><br>
+                    
+                    <!-- Exibindo os novos campos no Card -->
+                    <div style="margin-top:8px; font-size:14px; color:#555">
+                        <strong>📍 Local:</strong> ${ev.local || 'Não informado'}<br>
+                        <strong>👥 Participantes:</strong> ${ev.participantes || 'Nenhum'}
+                    </div>
+
                     <div style="margin-top:12px">
-                        <button class="btn-edit" onclick="prepararEdicao('${ev.id}', '${ev.nome}', '${ev.data}')">✏️</button>
-                        <button class="btn-del" onclick="deletarEvento('${ev.id}')">🗑️</button>
+                        <button class="btn-edit" onclick="prepararEdicao('${ev.id}', '${ev.nome}', '${ev.data}', '${ev.local}', '${ev.participantes}')">✏️ Editar</button>
+                        <button class="btn-del" onclick="deletarEvento('${ev.id}')">🗑️ Excluir</button>
                     </div>
                 </div>
             `).join('');
         } catch (e) {
-            console.error("Erro ao carregar:", e);
-            document.getElementById('lista-eventos').innerHTML = "<p style='color:red'>Erro ao conectar com o servidor. Verifique o CORS no index.js!</p>";
+            document.getElementById('lista-eventos').innerHTML = "Erro ao carregar eventos.";
         }
     }
 
@@ -91,8 +59,12 @@
         const id = document.getElementById('input-id').value;
         const nome = document.getElementById('input-nome').value;
         const data = document.getElementById('input-data').value;
+        const local = document.getElementById('input-local').value; // Captura Local
+        const participantes = document.getElementById('input-participantes').value; // Captura Participantes
 
-        if (!nome || !data) return alert("Preencha o nome e a data!");
+        if (!nome || !data || !local) return alert("Preencha ao menos Nome, Data e Local!");
+
+        const dados = { nome, data, local, participantes };
 
         try {
             const metodo = id ? 'PUT' : 'POST';
@@ -101,48 +73,41 @@
             const res = await fetch(url, {
                 method: metodo,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, data })
+                body: JSON.stringify(dados)
             });
 
             if(res.ok) {
                 limparForm();
                 carregarEventos();
-            } else {
-                alert("Erro ao salvar no servidor.");
             }
         } catch (e) {
-            alert("Erro de conexão. O servidor está rodando?");
+            alert("Erro ao salvar. Verifique se o servidor no Render está online.");
         }
     }
 
-    async function deletarEvento(id) {
-        if (confirm("Excluir evento?")) {
-            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            carregarEventos();
-        }
-    }
-
-    function navegar(id, titulo, elemento) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(`aba-${id}`).classList.add('active');
-        document.getElementById('titulo-aba').innerText = titulo;
-        document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active-nav'));
-        elemento.classList.add('active-nav');
-    }
-
-    function prepararEdicao(id, nome, data) {
+    function prepararEdicao(id, nome, data, local, participantes) {
         document.getElementById('input-id').value = id;
         document.getElementById('input-nome').value = nome;
         document.getElementById('input-data').value = data;
-        window.scrollTo(0,0);
+        document.getElementById('input-local').value = local === 'undefined' ? '' : local;
+        document.getElementById('input-participantes').value = participantes === 'undefined' ? '' : participantes;
+        
+        document.getElementById('form-title').innerText = "✏️ Editando Evento";
+        document.getElementById('btn-confirmar').innerText = "Salvar Alterações ✅";
+        document.getElementById('btn-cancelar').style.display = "block";
+        window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     function limparForm() {
         document.getElementById('input-id').value = '';
         document.getElementById('input-nome').value = '';
         document.getElementById('input-data').value = '';
+        document.getElementById('input-local').value = '';
+        document.getElementById('input-participantes').value = '';
+        document.getElementById('form-title').innerText = "📅 Novo Evento";
+        document.getElementById('btn-confirmar').innerText = "Confirmar 🚀";
+        document.getElementById('btn-cancelar').style.display = "none";
     }
+
     carregarEventos();
 </script>
-</body>
-</html>
