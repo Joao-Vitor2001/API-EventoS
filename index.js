@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors'); // Certifique-se de que rodou: npm install cors
 const eventoService = require('./SERVICES/eventoService');
+const awardsService = require('./SERVICES/awardsService');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -54,7 +56,22 @@ app.delete('/eventos/:id', (req, res) => {
     }
 });
 // --- LIGAR SERVIDOR ---
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+app.get('/awards', (req, res) => {
+    const lista = awardsService.listar();
+    res.json(lista);
 });
- 
+
+app.post('/awards', (req, res) => {
+    const novaIndicao = req.body;
+    const itemCriado = awardsService.indicar(novaIndicao);
+    res.status(201).json(itemCriado);
+});
+
+app.post('/awards/:id/votar', (req, res) => {
+    const sucesso = awardsService.votar(req.params.id);
+    if (sucesso) res.json({ mensagem: "Voto registrado!" });
+    else res.status(404).send();
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Rodando na porta ${PORT}`));
