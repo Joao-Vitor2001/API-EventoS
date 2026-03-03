@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roots Awards</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --card:#111826;
+      --muted:#98a2b3;
+      --text:#e6e9ef;
+      --accent:#22c55e;
+      --accent2:#60a5fa;
+      --danger:#ef4444;
+      --border:#1f2a3a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 20% 10%, #12203a, transparent 60%),
+                  radial-gradient(1000px 500px at 80% 30%, #0f2a1f, transparent 60%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+    .app{
+      width:min(980px, 100%);
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:16px;
+    }
+    @media (max-width: 860px){
+      .app{grid-template-columns:1fr}
+    }
+    .panel, .view{
+      background: color-mix(in srgb, var(--card) 92%, black);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .logo{
+      width:40px;height:40px;
+      border-radius:12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display:grid; place-items:center;
+      font-weight:800;
+      color:#07110a;
+    }
+    .brand h1{
+      font-size:18px;
+      margin:0;
+      line-height:1.1;
+    }
+    .brand p{
+      margin:2px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .menu{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:12px;
+    }
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      color:var(--text);
+      border-radius:12px;
+      padding:12px 12px;
+      text-align:left;
+      cursor:pointer;
+      transition: .15s ease;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .btn:hover{transform: translateY(-1px); border-color: color-mix(in srgb, var(--accent2) 40%, var(--border))}
+    .btn.active{
+      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+      background: color-mix(in srgb, var(--accent) 12%, rgba(255,255,255,.02));
+    }
+    .pill{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid var(--border);
+      padding:3px 8px;
+      border-radius:999px;
+    }
+    .view h2{
+      margin:0 0 6px;
+      font-size:18px;
+    }
+    .view .sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 860px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      background: rgba(255,255,255,.02);
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .muted{color:var(--muted); font-size:13px}
+    .input, .select{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      outline:none;
+    }
+    .input:focus, .select:focus{border-color: color-mix(in srgb, var(--accent2) 55%, var(--border))}
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .primary{
+      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+      background: color-mix(in srgb, var(--accent) 18%, rgba(255,255,255,.02));
+    }
+    .danger{
+      border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
+      background: color-mix(in srgb, var(--danger) 12%, rgba(255,255,255,.02));
+    }
+    .toast{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px dashed var(--border);
+      color: var(--muted);
+      font-size:13px;
+    }
+    table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius:12px;
+      border:1px solid var(--border);
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--border);
+      text-align:left;
+      font-size:14px;
+    }
+    th{color:var(--muted); font-weight:600; background: rgba(255,255,255,.02)}
+    tr:last-child td{border-bottom:none}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="panel">
+      <div class="brand">
+        <div class="logo">RA</div>
+        <div>
+          <h1>Roots Awards</h1>
+          <p>Sistema de votação + ranking</p>
+        </div>
+      </div>
+
+      <div class="menu">
+        <button class="btn active" data-view="home">
+          <span>🏠 Início</span><span class="pill">menu</span>
+        </button>
+        <button class="btn" data-view="categorias">
+          <span>🏆 Categorias</span><span class="pill" id="pillCats">0</span>
+        </button>
+        <button class="btn" data-view="votar">
+          <span>🗳️ Votar</span><span class="pill">+1</span>
+        </button>
+        <button class="btn" data-view="ranking">
+          <span>📊 Ranking</span><span class="pill" id="pillPlayers">0</span>
+        </button>
+        <button class="btn" data-view="cadastrar">
+          <span>➕ Cadastrar</span><span class="pill">novo</span>
+        </button>
+      </div>
+
+      <div class="toast" id="statusBox">
+        Dica: cadastre participantes, vote e veja o ranking.
+      </div>
+    </aside>
+
+    <main class="view" id="view">
+      <!-- Conteúdo renderizado via JS -->
+    </main>
+  </div>
+
+  <script>
+    // ====== DADOS (você pode trocar) ======
+    const categorias = [
+      "Melhor Artista",
+      "Melhor Música",
+      "Revelação do Ano",
+      "Melhor Álbum",
+      "Melhor Performance ao Vivo"
+    ];
+
+    // Cada participante: { id, nome, categoria, votos }
+    let participantes = [
+      { id: crypto.randomUUID(), nome: "MC Raiz", categoria: "Melhor Artista", votos: 3 },
+      { id: crypto.randomUUID(), nome: "DJ Roots", categoria: "Melhor Performance ao Vivo", votos: 2 },
+      { id: crypto.randomUUID(), nome: "Banda Rua", categoria: "Melhor Álbum", votos: 1 },
+    ];
+
+    // ====== UTIL ======
+    const $ = (sel) => document.querySelector(sel);
+    const viewEl = $("#view");
+    const statusBox = $("#statusBox");
+
+    function setStatus(msg){
+      statusBox.textContent = msg;
+    }
+
+    function atualizarPills(){
+      $("#pillCats").textContent = categorias.length;
+      $("#pillPlayers").textContent = participantes.length;
+    }
+
+    function setActiveMenu(viewName){
+      document.querySelectorAll(".btn").forEach(btn=>{
+        btn.classList.toggle("active", btn.dataset.view === viewName);
+      });
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // ====== TELAS ======
+    function renderHome(){
+      setActiveMenu("home");
+      viewEl.innerHTML = `
+        <h2>Bem-vindo ao Roots Awards</h2>
+        <p class="sub">Escolha uma opção no menu para começar.</p>
+
+        <div class="grid">
+          <div class="card">
+            <div class="row">
+              <strong>Participantes</strong>
+              <span class="pill">${participantes.length}</span>
+            </div>
+            <p class="muted">Cadastre novos nomes e distribua votos.</p>
+          </div>
+
+          <div class="card">
+            <div class="row">
+              <strong>Categorias</strong>
+              <span class="pill">${categorias.length}</span>
+            </div>
+            <p class="muted">Você pode editar a lista no código.</p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <strong>Atalhos</strong>
+          <div class="actions">
+            <button class="btn primary" id="goVote">🗳️ Ir para Votar</button>
+            <button class="btn" id="goRank">📊 Ver Ranking</button>
+            <button class="btn" id="goCad">➕ Cadastrar</button>
+          </div>
+        </div>
+      `;
+
+      $("#goVote").onclick = () => renderVotar();
+      $("#goRank").onclick = () => renderRanking();
+      $("#goCad").onclick = () => renderCadastrar();
+      setStatus("Pronto! Use o menu para navegar.");
+    }
+
+    function renderCategorias(){
+      setActiveMenu("categorias");
+      viewEl.innerHTML = `
+        <h2>Categorias</h2>
+        <p class="sub">Essas são as categorias disponíveis no Roots Awards.</p>
+
+        <div class="card">
+          <ul class="muted" style="margin:0; padding-left:18px; color: var(--text)">
+            ${categorias.map(c => `<li style="margin:8px 0">${escapeHtml(c)}</li>`).join("")}
+          </ul>
+          <div class="toast">Para mudar as categorias, edite o array <b>categorias</b> no JS.</div>
+        </div>
+      `;
+      setStatus("Categorias carregadas.");
+    }
+
+    function renderCadastrar(){
+      setActiveMenu("cadastrar");
+      viewEl.innerHTML = `
+        <h2>Cadastrar participante</h2>
+        <p class="sub">Adicione um nome e escolha uma categoria.</p>
+
+        <div class="card">
+          <label class="muted">Nome</label>
+          <input class="input" id="nome" placeholder="Ex: João do Beat" />
+
+          <div style="height:10px"></div>
+
+          <label class="muted">Categoria</label>
+          <select class="select" id="cat">
+            ${categorias.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("")}
+          </select>
+
+          <div class="actions">
+            <button class="btn primary" id="btnAdd">Salvar</button>
+            <button class="btn danger" id="btnClear">Limpar tudo (reset)</button>
+          </div>
+
+          <div class="toast" id="msgCad">Dica: depois de cadastrar, vá em “Votar”.</div>
+        </div>
+      `;
+
+      $("#btnAdd").onclick = () => {
+        const nome = $("#nome").value.trim();
+        const cat = $("#cat").value;
+
+        if(!nome){
+          $("#msgCad").textContent = "⚠️ Digite um nome antes de salvar.";
+          return;
+        }
+
+        participantes.push({
+          id: crypto.randomUUID(),
+          nome,
+          categoria: cat,
+          votos: 0
+        });
+
+        $("#nome").value = "";
+        $("#msgCad").textContent = `✅ "${nome}" cadastrado(a) em "${cat}".`;
+        atualizarPills();
+        setStatus("Participante cadastrado com sucesso.");
+      };
+
+      $("#btnClear").onclick = () => {
+        participantes = [];
+        atualizarPills();
+        $("#msgCad").textContent = "🧹 Reset feito. Agora não tem participantes.";
+        setStatus("Lista de participantes zerada.");
+      };
+
+      setStatus("Pronto para cadastrar.");
+    }
+
+    function renderVotar(){
+      setActiveMenu("votar");
+
+      if(participantes.length === 0){
+        viewEl.innerHTML = `
+          <h2>Votar</h2>
+          <p class="sub">Você precisa cadastrar pelo menos 1 participante.</p>
+          <div class="card">
+            <p class="muted">Clique em “Cadastrar” no menu e adicione alguém.</p>
+            <div class="actions">
+              <button class="btn primary" id="goCad2">➕ Ir para Cadastrar</button>
+            </div>
+          </div>
+        `;
+        $("#goCad2").onclick = () => renderCadastrar();
+        setStatus("Sem participantes para votar.");
+        return;
+      }
+
+      viewEl.innerHTML = `
+        <h2>Votar</h2>
+        <p class="sub">Escolha um participante e some +1 voto.</p>
+
+        <div class="card">
+          <label class="muted">Participante</label>
+          <select class="select" id="selP">
+            ${participantes.map(p => `
+              <option value="${p.id}">
+                ${escapeHtml(p.nome)} — ${escapeHtml(p.categoria)} (votos: ${p.votos})
+              </option>
+            `).join("")}
+          </select>
+
+          <div class="actions">
+            <button class="btn primary" id="btnVote">✅ Confirmar voto (+1)</button>
+            <button class="btn" id="btnGoRank">📊 Ver ranking</button>
+          </div>
+
+          <div class="toast" id="msgVote">Cada clique soma 1 voto.</div>
+        </div>
+      `;
+
+      $("#btnVote").onclick = () => {
+        const id = $("#selP").value;
+        const p = participantes.find(x => x.id === id);
+        if(!p) return;
+
+        p.votos += 1;
+        $("#msgVote").textContent = `🎉 Voto registrado em "${p.nome}"! Total agora: ${p.votos}`;
+        setStatus("Voto registrado.");
+
+        // re-render pra atualizar os votos no select
+        renderVotar();
+      };
+
+      $("#btnGoRank").onclick = () => renderRanking();
+      setStatus("Escolha alguém e vote.");
+    }
+
+    function renderRanking(){
+      setActiveMenu("ranking");
+      const ordenado = [...participantes].sort((a,b)=> b.votos - a.votos);
+
+      viewEl.innerHTML = `
+        <h2>Ranking</h2>
+        <p class="sub">Do maior número de votos para o menor.</p>
+
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Votos</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ordenado.map((p, i) => `
+                <tr>
+                  <td>${i+1}</td>
+                  <td>${escapeHtml(p.nome)}</td>
+                  <td class="muted">${escapeHtml(p.categoria)}</td>
+                  <td><strong>${p.votos}</strong></td>
+                </tr>
+              `).join("") || `
+                <tr><td colspan="4" class="muted">Sem participantes ainda.</td></tr>
+              `}
+            </tbody>
+          </table>
+
+          <div class="actions" style="margin-top:12px">
+            <button class="btn primary" id="goVote2">🗳️ Votar</button>
+            <button class="btn danger" id="btnZerarVotos">🧹 Zerar votos</button>
+          </div>
+
+          <div class="toast" id="msgRank">Dica: vote mais pra ver o ranking mudar.</div>
+        </div>
+      `;
+
+      $("#goVote2").onclick = () => renderVotar();
+      $("#btnZerarVotos").onclick = () => {
+        participantes = participantes.map(p => ({...p, votos: 0}));
+        setStatus("Votos zerados.");
+        renderRanking();
+      };
+
+      setStatus("Ranking atualizado.");
+    }
+
+    // ====== NAVEGAÇÃO ======
+    document.querySelectorAll(".btn[data-view]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const v = btn.dataset.view;
+        if(v === "home") renderHome();
+        if(v === "categorias") renderCategorias();
+        if(v === "votar") renderVotar();
+        if(v === "ranking") renderRanking();
+        if(v === "cadastrar") renderCadastrar();
+      });
+    });
+
+    // INIT
+    atualizarPills();
+    renderHome();
+  </script>
+</body>
+</html>
