@@ -57,7 +57,13 @@ app.delete('/eventos/:id', (req, res) => {
 });
 // --- ROOTS AWARDS  ---
 app.get("/awards", (req, res) => {
-  res.json(awardsService.listar());
+  try {
+    const lista = awardsService.listar();
+    res.json(lista);
+  } catch (err) {
+    console.error("ERRO EM /awards:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: String(err) });
+  }
 });
 
 app.post("/awards", (req, res) => {
