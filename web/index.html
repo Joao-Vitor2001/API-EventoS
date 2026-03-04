@@ -67,8 +67,23 @@
         <div id="lista-eventos">Carregando eventos...</div>
     </div>
 
-    <!-- Outras abas apenas para manter a estrutura -->
-    <div id="aba-ranking" class="section"><div class="card"><h3>🏆 ROOTS-AWARDS</h3></div></div>
+    <!-- aba roots-awards -->
+    <div id="aba-ranking" class="section">
+  <div class="card">
+    <h4 style="margin-top:0; color: var(--dark-green); border-bottom: 1px solid #eee; padding-bottom: 10px;">
+      🏆 ROOTS-Awards 🏆
+    </h4>
+
+    <label>TÍTULO DO AWARD</label>
+    <input type="text" id="input-award-titulo" placeholder="Ex: Mais meia do ano">
+
+    <button class="btn-save" onclick="criarAward()">Criar Award 🟢</button>
+  </div>
+
+  <div id="lista-awards">Carregando awards...</div>
+</div>
+
+<!-- Outras abas apenas para manter a estrutura -->
     <div id="aba-fotos" class="section"><div class="card"><h3>📸 Fotos</h3></div></div>
     <div id="aba-buscar" class="section"><div class="card"><h3>📍 Buscar</h3></div></div>
 </div>
@@ -84,8 +99,9 @@
   // URL base da sua API no Render
   const API_BASE = "https://api-eventos-9ket.onrender.com";
 
-  // Endpoint correto de eventos
+  // Endpoint correto de eventos/AWARDS
   const EVENTOS_URL = `${API_BASE}/eventos`;
+  const AWARDS_URL = `${API_BASE}/awards`;
 
   async function carregarEventos() {
     try {
@@ -197,6 +213,96 @@
     }
   }
 
+  // =========================
+// AWARDS (ROOTS Awards)
+// =========================
+async function carregarAwards() {
+  const divLista = document.getElementById("lista-awards");
+  if (!divLista) return;
+
+  divLista.innerHTML = "Carregando awards...";
+
+  try {
+    const res = await fetch(AWARDS_URL);
+    if (!res.ok) throw new Error("Falha ao buscar awards");
+
+    const awards = await res.json();
+
+    if (!awards || awards.length === 0) {
+      divLista.innerHTML =
+        "<p style='text-align:center; color:#95a5a6; padding: 20px;'>Nenhum award criado ainda.</p>";
+      return;
+    }
+
+    // Ranking por votos
+    awards.sort((a, b) => (b.votos ?? 0) - (a.votos ?? 0));
+
+    divLista.innerHTML = awards.map((a, idx) => `
+      <div class="card">
+        <strong style="font-size:18px; color:var(--dark-green)">${idx + 1}º - ${escapeHtml(a.titulo || a.nome || "Award")}</strong><br>
+        <div class="info-evento">
+          <strong>✅ Votos:</strong> ${a.votos ?? 0}
+        </div>
+        <div style="margin-top:12px; border-top: 1px solid #eee; padding-top: 15px; display:flex; gap:8px;">
+          <button class="btn-save" style="width:auto;" onclick="votarAward('${a.id}')">Votar 👍</button>
+        </div>
+      </div>
+    `).join("");
+
+  } catch (e) {
+    console.error(e);
+    divLista.innerHTML =
+      "<p style='color:red; text-align:center;'>⚠️ Erro ao conectar com o servidor de awards.</p>";
+  }
+}
+
+async function criarAward() {
+  const input = document.getElementById("input-award-titulo");
+  if (!input) return;
+
+  const titulo = input.value.trim();
+  if (!titulo) return alert("Digite um título para o award!");
+
+  try {
+    const res = await fetch(AWARDS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ titulo })
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error("Erro criar award:", txt);
+      alert("Erro ao criar award. Veja o console (F12).");
+      return;
+    }
+
+    input.value = "";
+    carregarAwards();
+  } catch (e) {
+    console.error(e);
+    alert("Erro de conexão ao criar award.");
+  }
+}
+
+async function votarAward(id) {
+  try {
+    const res = await fetch(`${AWARDS_URL}/${id}/votar`, { method: "POST" });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error("Erro votar:", txt);
+      alert("Erro ao votar. Veja o console (F12).");
+      return;
+    }
+
+    carregarAwards();
+  } catch (e) {
+    console.error(e);
+    alert("Erro de conexão ao votar.");
+  }
+}
+
   function prepararEdicao(id, nome, data, local, participantes) {
     document.getElementById("input-id").value = id;
     document.getElementById("input-nome").value = unescapeHtml(nome);
@@ -228,6 +334,10 @@
     document.getElementById("titulo-aba").innerText = titulo;
     document.querySelectorAll(".nav-item").forEach((btn) => btn.classList.remove("active-nav"));
     elemento.classList.add("active-nav");
+
+    if (abaId === "ranking") {
+      carregarAwards();
+    }
   }
 
   // ✅ Anti-bug: escapar textos pra não quebrar o onclick quando tiver aspas
