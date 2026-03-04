@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Rota inicial de teste
 app.get('/', (req, res) => {
-    res.send('API do App de Amigos Rodando! 🟢');
+    res.send('API do App de Amigos-do-Roots Rodando! 🟢');
 });
 
 // ✅ LISTAR eventos
