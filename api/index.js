@@ -56,21 +56,30 @@ app.delete('/eventos/:id', (req, res) => {
     }
 });
 // --- ROOTS AWARDS  ---
-app.get('/awards', (req, res) => {
-    const lista = awardsService.listar();
-    res.json(lista);
+app.get("/awards", (req, res) => {
+  res.json(awardsService.listar());
 });
 
-app.post('/awards', (req, res) => {
-    const novaIndicao = req.body;
-    const itemCriado = awardsService.indicar(novaIndicao); 
-    res.status(201).json(itemCriado);
+app.post("/awards", (req, res) => {
+  const { titulo } = req.body;
+
+  if (!titulo || !titulo.trim()) {
+    return res.status(400).json({ erro: "Título é obrigatório" });
+  }
+
+  const novo = awardsService.criar(titulo);
+  res.status(201).json(novo);
 });
 
-app.post('/awards/:id/votar', (req, res) => {
-    const sucesso = awardsService.votar(req.params.id);
-    if (sucesso) res.json({ mensagem: "Voto registrado!" });
-    else res.status(404).send();
+app.post("/awards/:id/votar", (req, res) => {
+  const { id } = req.params;
+  const atualizado = awardsService.votar(id);
+
+  if (!atualizado) {
+    return res.status(404).json({ erro: "Award não encontrado" });
+  }
+
+  res.json(atualizado);
 });
 
 app.listen(PORT, () => {
