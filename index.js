@@ -72,3 +72,7 @@ app.post('/awards/:id/votar', (req, res) => {
     if (sucesso) res.json({ mensagem: "Voto registrado!" });
     else res.status(404).send();
 });
+
+app.listen(PORT, () => {
+    console.log(`🚀 Rodando na porta ${PORT}`);
+});
