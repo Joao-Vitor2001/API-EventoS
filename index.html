@@ -162,7 +162,13 @@
       return;
     }
 
-    const dadosEvento = { nome, data, local, participantes };
+    const dadosEvento = {
+         id: id || Date.now().toString(),
+         nome,
+         data,
+         local,
+         participantes
+    };
 
     try {
       const metodo = id ? "PUT" : "POST";
@@ -179,8 +185,11 @@
       });
 
       if (res.ok) {
-        limparForm();
-        carregarEventos();
+      await res.json();
+      limparForm();
+      carregarEventos();
+    }
+
       } else {
         const txt = await res.text();
         console.error("Erro salvar:", txt);
