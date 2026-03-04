@@ -86,7 +86,7 @@
 
     async function carregarEventos() {
         try {
-            const res = await fetch(API_URL);
+            const res = await fetch(`${API_URL}/eventos`);
             const eventos = await res.json();
             const divLista = document.getElementById('lista-eventos');
             
