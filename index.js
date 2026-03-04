@@ -55,7 +55,7 @@ app.delete('/eventos/:id', (req, res) => {
         res.status(404).json({ mensagem: "Não encontrado" });
     }
 });
-// --- LIGAR SERVIDOR ---
+// --- ROOTS AWARDS  ---
 app.get('/awards', (req, res) => {
     const lista = awardsService.listar();
     res.json(lista);
@@ -63,7 +63,7 @@ app.get('/awards', (req, res) => {
 
 app.post('/awards', (req, res) => {
     const novaIndicao = req.body;
-    const itemCriado = awardsService.indicar(novaIndicao);
+    const itemCriado = awardsService.indicar(novaIndicao); 
     res.status(201).json(itemCriado);
 });
 
@@ -72,6 +72,3 @@ app.post('/awards/:id/votar', (req, res) => {
     if (sucesso) res.json({ mensagem: "Voto registrado!" });
     else res.status(404).send();
 });
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Rodando na porta ${PORT}`));
