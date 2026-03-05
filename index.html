@@ -356,29 +356,40 @@
                 }
 
                 divLista.innerHTML = eventos
-                    .map(
-                        (ev) => `
-            <div class="card">
-              <strong style="font-size:18px; color:var(--dark-green)">${ev.nome}</strong><br>
-              <div class="info-evento">
-                <strong>🗓️ Data:</strong> ${ev.data
+                    .map((ev) => {
+                        // ✅ Mongo pode vir como _id, e no JSON antigo vinha id
+                        const eventoId = ev.id || ev._id;
+
+                        // ✅ participantes: se for array, junta; se vazio, mostra "Nenhum"
+                        const participantesTexto = Array.isArray(ev.participantes)
+                            ? (ev.participantes.length ? ev.participantes.join(", ") : "Nenhum")
+                            : (ev.participantes || "Nenhum");
+
+                        return `
+          <div class="card">
+            <strong style="font-size:18px; color:var(--dark-green)">${escapeHtml(ev.nome || "")}</strong><br>
+            <div class="info-evento">
+              <strong>🗓️ Data:</strong> ${ev.data
                                 ? new Date(ev.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })
                                 : "Não informada"
                             }<br>
-                <strong>📍 Local:</strong> ${ev.local || "Não informado"}<br>
-                <strong>👥 Participantes:</strong> ${ev.participantes || "Nenhum"}
-              </div>
-              <div style="margin-top:12px; border-top: 1px solid #eee; padding-top: 15px; display: flex; gap: 5px;">
-                <button class="btn-edit" onclick="prepararEdicao('${ev.id}', '${escapeHtml(
-                                ev.nome
-                            )}', '${ev.data || ""}', '${escapeHtml(ev.local || "")}', '${escapeHtml(
-                                ev.participantes || ""
-                            )}')">✏️ Editar</button>
-                <button class="btn-del" onclick="deletarEvento('${ev.id}')">🗑️ Excluir</button>
-              </div>
+              <strong>📍 Local:</strong> ${escapeHtml(ev.local || "Não informado")}<br>
+              <strong>👥 Participantes:</strong> ${escapeHtml(participantesTexto)}
             </div>
-          `
-                    )
+
+            <div style="margin-top:12px; border-top: 1px solid #eee; padding-top: 15px; display: flex; gap: 5px;">
+              <button class="btn-edit"
+                onclick="prepararEdicao('${eventoId}', '${escapeHtml(ev.nome || "")}', '${ev.data || ""}', '${escapeHtml(ev.local || "")}')">
+                ✏️ Editar
+              </button>
+
+              <button class="btn-del" onclick="deletarEvento('${eventoId}')">
+                🗑️ Excluir
+              </button>
+            </div>
+          </div>
+        `;
+                    })
                     .join("");
             } catch (e) {
                 console.error(e);
@@ -394,7 +405,7 @@
             const local = document.getElementById("input-local").value.trim();
 
             const participantesSelecionados = [
-                document.querySelectorAll("#participantes-dropdown input:checked") 
+                ...document.querySelectorAll("#participantes-dropdown input:checked")
             ].map(el => el.value);
 
             if (!nome || !data || !local) {
@@ -403,7 +414,6 @@
             }
 
             const dadosEvento = {
-                id: id || Date.now().toString(),
                 nome,
                 data,
                 local,
