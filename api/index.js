@@ -127,3 +127,6 @@ app.post("/awards/:id/votar", async (req, res) => {
     res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
   }
 });
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+});
