@@ -174,6 +174,62 @@
             border-radius: 10px;
             cursor: pointer;
         }
+
+        .select-participantes {
+            position: relative;
+        }
+
+        #participantes-display {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .participantes-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            max-height: 220px;
+            overflow: auto;
+            z-index: 999;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .p-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 6px;
+            border-radius: 10px;
+        }
+
+        .p-item:hover {
+            background: #f6f6f6;
+        }
+
+        .btn-fechar {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -205,53 +261,31 @@
 
                 <label>PARTICIPANTES</label>
 
-                <div class="tabela-participantes">
+                <div class="select-participantes">
+                    <input type="text" id="participantes-display" placeholder="Selecionar participantes..." readonly
+                        onclick="toggleParticipantes()" />
+                    <div id="participantes-dropdown" class="participantes-dropdown hidden">
+                        <label class="p-item"><input type="checkbox" value="BOCA Jr"
+                                onchange="atualizarParticipantesDisplay()"> BOCA Jr</label>
+                        <label class="p-item"><input type="checkbox" value="BRINQUEDO"
+                                onchange="atualizarParticipantesDisplay()"> BRINQUEDO</label>
+                        <label class="p-item"><input type="checkbox" value="VINAUM"
+                                onchange="atualizarParticipantesDisplay()"> VINAUM</label>
+                        <label class="p-item"><input type="checkbox" value="MANCHA"
+                                onchange="atualizarParticipantesDisplay()"> MANCHA</label>
+                        <label class="p-item"><input type="checkbox" value="PRIMO"
+                                onchange="atualizarParticipantesDisplay()"> PRIMO</label>
+                        <label class="p-item"><input type="checkbox" value="JOHN"
+                                onchange="atualizarParticipantesDisplay()"> JOHN</label>
+                        <label class="p-item"><input type="checkbox" value="GDO"
+                                onchange="atualizarParticipantesDisplay()"> GDO</label>
+                        <label class="p-item"><input type="checkbox" value="LOUIE"
+                                onchange="atualizarParticipantesDisplay()"> LOUIE</label>
+                        <label class="p-item"><input type="checkbox" value="PAPAI ARTH"
+                                onchange="atualizarParticipantesDisplay()"> PAPAI ARTH</label>
 
-                    <label class="participante-item">
-                        <input type="checkbox" value="BOCA Jr">
-                        BOCA Jr
-                    </label>
-
-                    <label class="participante-item">
-                        <input type="checkbox" value="BRINQUEDO">
-                        BRINQUEDO
-                    </label>
-
-                    <label class="participante-item">
-                        <input type="checkbox" value="VINAUM">
-                        VINAUM
-                    </label>
-
-                    <label class="participante-item">
-                        <input type="checkbox" value="MANCHA">
-                        MANCHA
-                    </label>
-
-                    <label class="participante-item">
-                        <input type="checkbox" value="PRIMO">
-                        PRIMO
-                    </label>
-
-                    <label class="participante-item">
-                        <input type="checkbox" value="JOHN">
-                        JOHN
-                    </label>
-
-                    <label class="participante-item">
-                        <input type="checkbox" value="GDO">
-                        GDO
-                    </label>
-
-                    <label class="participante-item">
-                        <input type="checkbox" value="LOUIE">
-                        LOUIE
-                    </label>
-
-                    <label class="participante-item">
-                        <input type="checkbox" value="PAPAI ARTH">
-                        PAPAI ARTH
-                    </label>
-
+                        <button type="button" class="btn-fechar" onclick="toggleParticipantes(false)">OK</button>
+                    </div>
                 </div>
 
                 <button class="btn-save" id="btn-confirmar" onclick="salvarEvento()">Confirmar Evento 🚀</button>
@@ -299,7 +333,7 @@
         <button class="nav-item" onclick="navegar('buscar', 'Buscar', this)"><i>📍</i>Buscar</button>
     </nav>
 
-    <script>
+    <script> // javascript para interatividade e conexão com a API
         // URL base da sua API no Render
         const API_BASE = "https://api-eventos-9ket.onrender.com";
 
@@ -360,7 +394,7 @@
             const local = document.getElementById("input-local").value.trim();
 
             const participantesSelecionados = [
-                ...document.querySelectorAll(".tabela-participantes input:checked")
+                document.querySelectorAll("#participantes-dropdown input:checked") 
             ].map(el => el.value);
 
             if (!nome || !data || !local) {
@@ -421,6 +455,36 @@
                 alert("Erro ao deletar.");
             }
         }
+
+        function toggleParticipantes(force) {
+            const drop = document.getElementById("participantes-dropdown");
+            if (force === false) {
+                drop.classList.add("hidden");
+                return;
+            }
+            drop.classList.toggle("hidden");
+        }
+
+        // Atualiza o input "bonito" com os nomes marcados
+        function atualizarParticipantesDisplay() {
+            const selecionados = [
+                ...document.querySelectorAll('#participantes-dropdown input[type="checkbox"]:checked')
+            ].map(el => el.value);
+
+            const display = document.getElementById("participantes-display");
+            display.value = selecionados.length ? selecionados.join(", ") : "";
+        }
+
+        // Fecha ao clicar fora
+        document.addEventListener("click", (e) => {
+            const box = document.querySelector(".select-participantes");
+            const drop = document.getElementById("participantes-dropdown");
+            if (!box) return;
+
+            if (!box.contains(e.target)) {
+                drop.classList.add("hidden");
+            }
+        });
 
         // =========================
         // AWARDS (ROOTS Awards)
