@@ -157,6 +157,23 @@
             color: var(--primary);
             font-weight: bold;
         }
+
+        .tabela-participantes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .participante-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -187,7 +204,25 @@
                 <input type="text" id="input-local" placeholder="Ex: Rua das Flores, 123">
 
                 <label>PARTICIPANTES</label>
-                <div id="lista-participantes"></div>
+
+                <div class="tabela-participantes">
+
+                    <label class="participante-item">
+                        <input type="checkbox" value="BOCA Jr">
+                        BOCA Jr
+                    </label>
+
+                    <label class="participante-item">
+                        <input type="checkbox" value="BRINQUEDO">
+                        BRINQUEDO
+                    </label>
+
+                    <label class="participante-item">
+                        <input type="checkbox" value="VINAUM">
+                        VINAUM
+                    </label>
+
+                </div>
 
                 <button class="btn-save" id="btn-confirmar" onclick="salvarEvento()">Confirmar Evento 🚀</button>
                 <button id="btn-cancelar" style="display:none; width: 100%; margin-top: 8px; background: #bdc3c7;"
@@ -288,12 +323,15 @@
             }
         }
 
-        async function salvarEvento() {
+        aasync function salvarEvento() {
             const id = document.getElementById("input-id").value;
             const nome = document.getElementById("input-nome").value.trim();
             const data = document.getElementById("input-data").value;
             const local = document.getElementById("input-local").value.trim();
-            const participantes = document.getElementById("input-participantes").value.trim();
+
+            const participantesSelecionados = [
+                ...document.querySelectorAll(".tabela-participantes input:checked")
+            ].map(el => el.value);
 
             if (!nome || !data || !local) {
                 alert("Por favor, preencha Nome, Data e Local!");
@@ -305,12 +343,8 @@
                 nome,
                 data,
                 local,
-                participantes
+                participantes: participantesSelecionados
             };
-
-            // ✅ URL CERTA:
-            // POST -> /eventos
-            // PUT  -> /eventos/:id
 
             try {
                 const metodo = id ? "PUT" : "POST";
@@ -331,7 +365,6 @@
                     console.error("Erro salvar:", txt);
                     alert("Erro ao salvar. Verifique o console (F12).");
                 }
-
             } catch (e) {
                 console.error(e);
                 alert("Erro de conexão. O servidor pode estar reiniciando.");
@@ -467,7 +500,10 @@
             document.getElementById("input-nome").value = "";
             document.getElementById("input-data").value = "";
             document.getElementById("input-local").value = "";
-            document.getElementById("input-participantes").value = "";
+
+            // ✅ desmarca todos os participantes (checkbox)
+            document.querySelectorAll(".tabela-participantes input")
+                .forEach(el => el.checked = false);
 
             document.getElementById("form-title").innerText = "📅 Novo Evento";
             document.getElementById("btn-confirmar").innerText = "Confirmar Evento 🚀";
