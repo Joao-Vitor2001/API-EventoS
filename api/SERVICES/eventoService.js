@@ -1,54 +1,59 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-// Localiza o arquivo eventos.json dentro da pasta DATA
 const caminhoArquivo = path.join(__dirname, '..', 'DATA', 'eventos.json');
 
-// Função para ler os dados do arquivo
-function lerArquivo() {
-    try {
-        const dados = fs.readFileSync(caminhoArquivo, 'utf-8');
-        return JSON.parse(dados || "[]");
-    } catch (erro) {
-        return []; // Se o arquivo não existir, retorna um array vazio
-    }
+function garantirArquivo() {
+    const pasta = path.dirname(caminhoArquivo);
+    if (!fs.existsSync(pasta)) fs.mkdirSync(pasta, { recursive: true });
+    if (!fs.existsSync(caminhoArquivo)) fs.writeFileSync(caminhoArquivo, "[]", "utf-8");
 }
 
-// Função para gravar os dados no arquivo
+function lerArquivo() {
+    garantirArquivo();
+    const dados = fs.readFileSync(caminhoArquivo, "utf-8");
+    if (!dados.trim()) return [];              // arquivo vazio -> []
+    const parsed = JSON.parse(dados);          // se estiver inválido, vai cair no catch lá embaixo
+    return Array.isArray(parsed) ? parsed : []; // se não for array, vira []
+}
+
 function salvarArquivo(eventos) {
-    fs.writeFileSync(caminhoArquivo, JSON.stringify(eventos, null, 2));
+    garantirArquivo();
+    fs.writeFileSync(caminhoArquivo, JSON.stringify(eventos, null, 2), "utf-8");
 }
 
 function listarEventos() {
-    return lerArquivo();
+    try {
+        return lerArquivo();
+    } catch (err) {
+        console.error("ERRO lerArquivo(eventos):", err);
+        return [];
+    }
 }
 
 function criarEvento(novoEvento) {
     const eventos = lerArquivo();
-    // Adiciona um ID único para que possamos editar/deletar depois
     const eventoComId = { id: Date.now().toString(), ...novoEvento };
     eventos.push(eventoComId);
     salvarArquivo(eventos);
     return eventoComId;
 }
 
-// ✅ Atualiza um evento existente pelo ID
 function atualizarEvento(id, dadosNovos) {
     const eventos = lerArquivo();
-    const index = eventos.findIndex(e => e.id === id);
+    const index = eventos.findIndex((e) => e.id === id);
 
     if (index !== -1) {
-        eventos[index] = { ...eventos[index], ...dadosNovos, id }; 
+        eventos[index] = { ...eventos[index], ...dadosNovos, id };
         salvarArquivo(eventos);
         return true;
     }
     return false;
 }
 
-// ✅ Remove um evento da lista pelo ID
 function deletarEvento(id) {
     const eventos = lerArquivo();
-    const novaLista = eventos.filter(e => e.id !== id);
+    const novaLista = eventos.filter((e) => e.id !== id);
 
     if (eventos.length !== novaLista.length) {
         salvarArquivo(novaLista);
@@ -57,10 +62,4 @@ function deletarEvento(id) {
     return false;
 }
 
-// Exporta as funções para serem usadas no index.js
-module.exports = {
-    listarEventos,
-    criarEvento,
-    atualizarEvento,
-    deletarEvento,
-};
+module.exports = { listarEventos, criarEvento, atualizarEvento, deletarEvento };
