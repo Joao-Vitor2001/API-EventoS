@@ -31,9 +31,9 @@ app.post('/eventos', (req, res) => {
     const eventoCriado = eventoService.criarEvento(novoEvento);
     res.status(201).json(eventoCriado);
   } catch (err) {
-    console.error("ERRO EM /eventos:", err);
-    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
-  }
+    console.error("Erro ao criar evento:", err);
+        res.status(500).json({ erro: "Erro ao salvar evento" });
+    }
 });
 
 // ✅ EDITAR evento (Usado pelo botão ✏️)
