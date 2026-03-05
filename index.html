@@ -222,6 +222,36 @@
                         VINAUM
                     </label>
 
+                    <label class="participante-item">
+                        <input type="checkbox" value="MANCHA">
+                        MANCHA
+                    </label>
+
+                    <label class="participante-item">
+                        <input type="checkbox" value="PRIMO">
+                        PRIMO
+                    </label>
+
+                    <label class="participante-item">
+                        <input type="checkbox" value="JOHN">
+                        JOHN
+                    </label>
+
+                    <label class="participante-item">
+                        <input type="checkbox" value="GDO">
+                        GDO
+                    </label>
+
+                    <label class="participante-item">
+                        <input type="checkbox" value="LOUIE">
+                        LOUIE
+                    </label>
+
+                    <label class="participante-item">
+                        <input type="checkbox" value="PAPAI ARTH">
+                        PAPAI ARTH
+                    </label>
+
                 </div>
 
                 <button class="btn-save" id="btn-confirmar" onclick="salvarEvento()">Confirmar Evento 🚀</button>
@@ -323,7 +353,7 @@
             }
         }
 
-        aasync function salvarEvento() {
+        async function salvarEvento() {
             const id = document.getElementById("input-id").value;
             const nome = document.getElementById("input-nome").value.trim();
             const data = document.getElementById("input-data").value;
