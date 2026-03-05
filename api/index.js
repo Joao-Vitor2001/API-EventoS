@@ -2,7 +2,24 @@ const express = require('express');
 const cors = require('cors'); // Certifique-se de que rodou: npm install cors
 const eventoService = require('./SERVICES/eventoService');
 const awardsService = require('./SERVICES/awardsService');
+const { MongoClient } = require("mongodb");
 
+const uri = process.env.MONGO_URI;
+const client = new MongoClient(uri);
+
+let db;
+
+async function conectarDB() {
+  try {
+    await client.connect();
+    db = client.db("roots");
+    console.log("🟢 MongoDB conectado");
+  } catch (erro) {
+    console.error("Erro ao conectar no MongoDB:", erro);
+  }
+}
+
+conectarDB();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,87 +32,96 @@ app.use(express.json());
 
 // Rota inicial de teste
 app.get('/', (req, res) => {
-    res.send('API do App de Amigos-do-Roots Rodando! 🟢');
+  res.send('API do App de Amigos-do-Roots Rodando! 🟢');
 });
 
 // ✅ LISTAR eventos
-app.get('/eventos', (req, res) => {
-    const eventos = eventoService.listarEventos();
+app.get("/eventos", async (req, res) => {
+  try {
+    const eventos = await eventoService.listarEventos();
     res.json(eventos);
+  } catch (err) {
+    console.error("ERRO GET /eventos:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
+  }
 });
 
 // ✅ CRIAR evento
-app.post('/eventos', (req, res) => {
+app.post("/eventos", async (req, res) => {
   try {
-    const novoEvento = req.body;
-    const eventoCriado = eventoService.criarEvento(novoEvento);
+    const eventoCriado = await eventoService.criarEvento(req.body);
     res.status(201).json(eventoCriado);
   } catch (err) {
-    console.error("Erro ao criar evento:", err);
-        res.status(500).json({ erro: "Erro ao salvar evento" });
-    }
+    console.error("ERRO POST /eventos:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
+  }
 });
 
-// ✅ EDITAR evento (Usado pelo botão ✏️)
-app.put('/eventos/:id', (req, res) => {
-    const { id } = req.params;
-    const dadosNovos = req.body;
-    const sucesso = eventoService.atualizarEvento(id, dadosNovos);
-    
-    if (sucesso) {
-        res.json({ mensagem: "Atualizado!" });
-    } else {
-        res.status(404).json({ mensagem: "Não encontrado" });
-    }
+// ✅ EDITAR evento
+app.put("/eventos/:id", async (req, res) => {
+  try {
+    const ok = await eventoService.atualizarEvento(req.params.id, req.body);
+    if (!ok) return res.status(404).json({ mensagem: "Não encontrado" });
+    res.json({ mensagem: "Atualizado!" });
+  } catch (err) {
+    console.error("ERRO PUT /eventos:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
+  }
 });
 
-// ✅ DELETAR evento (Usado pelo botão 🗑️)
-app.delete('/eventos/:id', (req, res) => {
-    const { id } = req.params;
-    const sucesso = eventoService.deletarEvento(id);
-    
-    if (sucesso) {
-        res.json({ mensagem: "Excluído!" });
-    } else {
-        res.status(404).json({ mensagem: "Não encontrado" });
-    }
+// ✅ DELETAR evento
+app.delete("/eventos/:id", async (req, res) => {
+  try {
+    const ok = await eventoService.deletarEvento(req.params.id);
+    if (!ok) return res.status(404).json({ mensagem: "Não encontrado" });
+    res.json({ mensagem: "Excluído!" });
+  } catch (err) {
+    console.error("ERRO DELETE /eventos:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
+  }
 });
 
 
 
 // --- ROOTS AWARDS  ---
-app.get("/awards", (req, res) => {
+// --- ROOTS AWARDS ---
+app.get("/awards", async (req, res) => {
   try {
-    const lista = awardsService.listar();
+    const lista = await awardsService.listar();
     res.json(lista);
   } catch (err) {
-    console.error("ERRO EM /awards:", err);
-    res.status(500).json({ erro: "Internal Server Error", detalhe: String(err) });
+    console.error("ERRO GET /awards:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
   }
 });
 
-app.post("/awards", (req, res) => {
-  const { titulo } = req.body;
+app.post("/awards", async (req, res) => {
+  try {
+    const { titulo } = req.body;
 
-  if (!titulo || !titulo.trim()) {
-    return res.status(400).json({ erro: "Título é obrigatório" });
+    if (!titulo || !titulo.trim()) {
+      return res.status(400).json({ erro: "Título é obrigatório" });
+    }
+
+    const novo = await awardsService.criar(titulo);
+    res.status(201).json(novo);
+  } catch (err) {
+    console.error("ERRO POST /awards:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
   }
-
-  const novo = awardsService.criar(titulo);
-  res.status(201).json(novo);
 });
 
-app.post("/awards/:id/votar", (req, res) => {
-  const { id } = req.params;
-  const atualizado = awardsService.votar(id);
+app.post("/awards/:id/votar", async (req, res) => {
+  try {
+    const atualizado = await awardsService.votar(req.params.id);
 
-  if (!atualizado) {
-    return res.status(404).json({ erro: "Award não encontrado" });
+    if (!atualizado) {
+      return res.status(404).json({ erro: "Award não encontrado" });
+    }
+
+    res.json(atualizado);
+  } catch (err) {
+    console.error("ERRO POST /awards/:id/votar:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
   }
-
-  res.json(atualizado);
-});
-
-app.listen(PORT, () => {
-    console.log(`🚀 Rodando na porta ${PORT}`);
 });
