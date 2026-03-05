@@ -26,9 +26,14 @@ app.get('/eventos', (req, res) => {
 
 // ✅ CRIAR evento
 app.post('/eventos', (req, res) => {
+  try {
     const novoEvento = req.body;
     const eventoCriado = eventoService.criarEvento(novoEvento);
     res.status(201).json(eventoCriado);
+  } catch (err) {
+    console.error("ERRO EM /eventos:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
+  }
 });
 
 // ✅ EDITAR evento (Usado pelo botão ✏️)
@@ -55,6 +60,9 @@ app.delete('/eventos/:id', (req, res) => {
         res.status(404).json({ mensagem: "Não encontrado" });
     }
 });
+
+
+
 // --- ROOTS AWARDS  ---
 app.get("/awards", (req, res) => {
   try {
