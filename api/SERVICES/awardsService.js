@@ -1,53 +1,38 @@
-// api/SERVICES/awardsService.js  ✅ (MongoDB)
-const { ObjectId } = require("mongodb");
 const { getDB } = require("../db");
+const { ObjectId } = require("mongodb");
 
-async function getCol() {
-  const db = getDB();
-  return db.collection("awards");
-}
-
-// ✅ converte _id -> id pro seu frontend continuar usando "id"
-function normalizar(doc) {
-  return {
-    id: String(doc._id),
-    titulo: doc.titulo,
-    votos: doc.votos || 0,
-  };
-}
-
-// ✅ GET /awards
 async function listar() {
-  const col = await getCol();
-  const docs = await col.find().sort({ votos: -1, _id: -1 }).toArray();
-  return docs.map(normalizar);
+  const db = getDB();
+  return db.collection("awards").find({}).sort({ votos: -1, createdAt: -1 }).toArray();
 }
 
-// ✅ POST /awards  (recebe o título e cria no banco com votos=0)
 async function criar(titulo) {
-  const col = await getCol();
+  const db = getDB();
 
-  const award = {
+  const doc = {
     titulo: String(titulo).trim(),
     votos: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
-  const result = await col.insertOne(award);
-  return { id: String(result.insertedId), ...award };
+  const result = await db.collection("awards").insertOne(doc);
+  return { _id: result.insertedId, ...doc };
 }
 
-// ✅ POST /awards/:id/votar  (incrementa votos)
 async function votar(id) {
-  const col = await getCol();
+  const db = getDB();
 
-  const result = await col.findOneAndUpdate(
+  const result = await db.collection("awards").findOneAndUpdate(
     { _id: new ObjectId(id) },
-    { $inc: { votos: 1 } },
+    {
+      $inc: { votos: 1 },
+      $set: { updatedAt: new Date() }
+    },
     { returnDocument: "after" }
   );
 
-  if (!result.value) return null;
-  return normalizar(result.value);
+  return result;
 }
 
 module.exports = { listar, criar, votar };
