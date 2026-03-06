@@ -1,33 +1,53 @@
-const fs = require('fs');
-const path = require('path');
+// api/SERVICES/awardsService.js  ✅ (MongoDB)
+const { ObjectId } = require("mongodb");
+const { getDB } = require("../db");
 
-const filePath = path.join(__dirname, '../data/awards.json');
-
-function lerArquivo() {
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, "[]");
-    }
-
-    const data = fs.readFileSync(filePath, "utf-8");
-    return JSON.parse(data || "[]");
+async function getCol() {
+  const db = getDB();
+  return db.collection("awards");
 }
 
-function salvarArquivo(dados) {
-    fs.writeFileSync(filePath, JSON.stringify(dados, null, 2));
+// ✅ converte _id -> id pro seu frontend continuar usando "id"
+function normalizar(doc) {
+  return {
+    id: String(doc._id),
+    titulo: doc.titulo,
+    votos: doc.votos || 0,
+  };
 }
 
-function listar() {
-    return lerArquivo();
+// ✅ GET /awards
+async function listar() {
+  const col = await getCol();
+  const docs = await col.find().sort({ votos: -1, _id: -1 }).toArray();
+  return docs.map(normalizar);
 }
 
-function criar(novoAward) {
-    const awards = lerArquivo();
-    awards.push(novoAward);
-    salvarArquivo(awards);
-    return novoAward;
+// ✅ POST /awards  (recebe o título e cria no banco com votos=0)
+async function criar(titulo) {
+  const col = await getCol();
+
+  const award = {
+    titulo: String(titulo).trim(),
+    votos: 0,
+  };
+
+  const result = await col.insertOne(award);
+  return { id: String(result.insertedId), ...award };
 }
 
-module.exports = {
-    listar,
-    criar
-};
+// ✅ POST /awards/:id/votar  (incrementa votos)
+async function votar(id) {
+  const col = await getCol();
+
+  const result = await col.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    { $inc: { votos: 1 } },
+    { returnDocument: "after" }
+  );
+
+  if (!result.value) return null;
+  return normalizar(result.value);
+}
+
+module.exports = { listar, criar, votar };

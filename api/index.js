@@ -1,27 +1,12 @@
+require('dotenv').config(); // Carrega variáveis de ambiente do .env
+
 const express = require('express');
 const cors = require('cors'); // Certifique-se de que rodou: npm install cors
 const eventoService = require('./SERVICES/eventoService');
 const awardsService = require('./SERVICES/awardsService');
-const { MongoClient } = require("mongodb");
+const { connectDB } = require("./db");
 
-const uri = process.env.MONGO_URI;
-const client = new MongoClient(uri, {
-  tls: true
-});
-
-let db;
-
-async function conectarDB() {
-  try {
-    await client.connect();
-    db = client.db("roots");
-    console.log("🟢 MongoDB conectado");
-  } catch (erro) {
-    console.error("Erro ao conectar no MongoDB:", erro);
-  }
-}
-
-conectarDB();
+connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -127,6 +112,7 @@ app.post("/awards/:id/votar", async (req, res) => {
     res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
   }
 });
-app.listen(PORT, () => {
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
