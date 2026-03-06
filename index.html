@@ -256,20 +256,20 @@
                     id="form-title">📅 Novo Evento</h4>
                 <input type="hidden" id="input-id">
 
-                <label>NOME DO EVENTO</label>
+                <label for="input-nome">NOME DO EVENTO</label>
                 <input type="text" id="input-nome" placeholder="Ex: Churrasco da Galera">
 
                 <div style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
-                        <label>DATA</label>
+                        <label for="input-data">DATA</label>
                         <input type="date" id="input-data">
                     </div>
                 </div>
 
-                <label>LOCAL</label>
+                <label for="input-local">LOCAL</label>
                 <input type="text" id="input-local" placeholder="Ex: Rua das Flores, 123">
 
-                <label>PARTICIPANTES</label>
+                <label for="participantes-display">PARTICIPANTES</label>
 
                 <div class="select-participantes">
                     <input type="text" id="participantes-display" placeholder="Selecionar participantes..." readonly
@@ -389,7 +389,7 @@
 
             <div style="margin-top:12px; border-top: 1px solid #eee; padding-top: 15px; display: flex; gap: 5px;">
               <button class="btn-edit"
-                onclick="prepararEdicao('${eventoId}', '${escapeHtml(ev.nome || "")}', '${ev.data || ""}', '${escapeHtml(ev.local || "")}')">
+                onclick="prepararEdicao('${eventoId}', '${escapeHtml(ev.nome || "")}', '${ev.data || ""}', '${escapeHtml(ev.local || "")}', '${escapeHtml(participantesTexto)}')">
                 ✏️ Editar
               </button>
 
@@ -433,6 +433,8 @@
             try {
                 const metodo = id ? "PUT" : "POST";
                 const url = id ? `${EVENTOS_URL}/${id}` : EVENTOS_URL;
+                
+                console.log("🔍 Salvando evento:", { metodo, url, id, dadosEvento });
 
                 const res = await fetch(url, {
                     method: metodo,
@@ -601,7 +603,7 @@
             document.getElementById("input-nome").value = unescapeHtml(nome);
             document.getElementById("input-data").value = data;
             document.getElementById("input-local").value = unescapeHtml(local);
-            document.getElementById("input-participantes").value = unescapeHtml(participantes);
+            document.getElementById("participantes-display").value = unescapeHtml(participantes || "");
 
             document.getElementById("form-title").innerText = "✏️ Editando Evento";
             document.getElementById("btn-confirmar").innerText = "Salvar Alterações ✅";
