@@ -1,65 +1,43 @@
-const fs = require("fs");
-const path = require("path");
+const { getDB } = require("../db");
+const { ObjectId } = require("mongodb");
 
-const caminhoArquivo = path.join(__dirname, '..', 'DATA', 'eventos.json');
-
-function garantirArquivo() {
-    const pasta = path.dirname(caminhoArquivo);
-    if (!fs.existsSync(pasta)) fs.mkdirSync(pasta, { recursive: true });
-    if (!fs.existsSync(caminhoArquivo)) fs.writeFileSync(caminhoArquivo, "[]", "utf-8");
+async function listarEventos() {
+  const db = getDB();
+  return db.collection("eventos").find({}).sort({ createdAt: -1 }).toArray();
 }
 
-function lerArquivo() {
-    garantirArquivo();
-    const dados = fs.readFileSync(caminhoArquivo, "utf-8");
-    if (!dados.trim()) return [];              // arquivo vazio -> []
-    const parsed = JSON.parse(dados);          // se estiver inválido, vai cair no catch lá embaixo
-    return Array.isArray(parsed) ? parsed : []; // se não for array, vira []
+async function criarEvento(novoEvento) {
+  const db = getDB();
+
+  const doc = {
+    ...novoEvento,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const result = await db.collection("eventos").insertOne(doc);
+  return { _id: String(result.insertedId), ...doc };
 }
 
-function salvarArquivo(eventos) {
-    garantirArquivo();
-    fs.writeFileSync(caminhoArquivo, JSON.stringify(eventos, null, 2), "utf-8");
+async function atualizarEvento(id, dadosNovos) {
+  const db = getDB(); 
+
+  const result = await db.collection("eventos").updateOne(
+    { _id: new ObjectId(id) },
+    { $set: { ...dadosNovos, updatedAt: new Date() } }
+  );
+
+  return result.matchedCount > 0;
 }
 
-function listarEventos() {
-    try {
-        return lerArquivo();
-    } catch (err) {
-        console.error("ERRO lerArquivo(eventos):", err);
-        return [];
-    }
-}
+async function deletarEvento(id) {
+  const db = getDB();
 
-function criarEvento(novoEvento) {
-    const eventos = lerArquivo();
-    const eventoComId = { id: Date.now().toString(), ...novoEvento };
-    eventos.push(eventoComId);
-    salvarArquivo(eventos);
-    return eventoComId;
-}
+  const result = await db.collection("eventos").deleteOne({
+    _id: new ObjectId(id),
+  });
 
-function atualizarEvento(id, dadosNovos) {
-    const eventos = lerArquivo();
-    const index = eventos.findIndex((e) => e.id === id);
-
-    if (index !== -1) {
-        eventos[index] = { ...eventos[index], ...dadosNovos, id };
-        salvarArquivo(eventos);
-        return true;
-    }
-    return false;
-}
-
-function deletarEvento(id) {
-    const eventos = lerArquivo();
-    const novaLista = eventos.filter((e) => e.id !== id);
-
-    if (eventos.length !== novaLista.length) {
-        salvarArquivo(novaLista);
-        return true;
-    }
-    return false;
+  return result.deletedCount > 0;
 }
 
 module.exports = { listarEventos, criarEvento, atualizarEvento, deletarEvento };
