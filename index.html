@@ -607,8 +607,8 @@
             document.getElementById("participantes-display").value = "";
             toggleParticipantes(false);
 
-            // ✅ desmarca todos os participantes (checkbox)
-            document.querySelectorAll(".tabela-participantes input")
+            // ✅ desmarca todos os participantes (checkbox) - SELETOR CORRETO
+            document.querySelectorAll("#participantes-dropdown input[type='checkbox']")
                 .forEach(el => el.checked = false);
 
             document.getElementById("form-title").innerText = "📅 Novo Evento";
