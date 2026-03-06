@@ -4,11 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const eventoService = require('./SERVICES/eventoService');
 const awardsService = require('./SERVICES/awardsService');
-
-console.log("📂 Tentando carregar db.js...");
-const dbModule = require("./db");
-console.log("✅ db.js carregado:", dbModule);
-const { connectDB } = dbModule;
+const { connectDB } = require("./db");
 
 const app = express();
 const PORT = process.env.PORT || 3000;

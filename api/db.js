@@ -1,10 +1,6 @@
 const { MongoClient } = require("mongodb");
 
-console.log("✨ db.js está sendo carregado...");
-
 const uri = process.env.MONGO_URI;
-console.log("🔑 MONGO_URI:", uri ? "definida" : "NÃO DEFINIDA");
-
 const client = new MongoClient(uri, { tls: true });
 
 let db;
@@ -22,6 +18,4 @@ function getDB() {
   return db;
 }
 
-console.log("📤 Exportando: connectDB, getDB");
 module.exports = { connectDB, getDB };
-console.log("✅ db.js carregado com sucesso");
