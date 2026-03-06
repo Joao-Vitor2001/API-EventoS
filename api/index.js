@@ -6,14 +6,16 @@ const eventoService = require('./SERVICES/eventoService');
 const awardsService = require('./SERVICES/awardsService');
 const { connectDB } = require("./db");
 
-connectDB();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- CONFIGURAÇÕES ---
-app.use(cors()); // Importante para o navegador não bloquear o site
-app.use(express.json());
+// --- INICIALIZAR SERVIDOR ---
+async function iniciar() {
+  await connectDB(); // Aguarda conexão com MongoDB ANTES de aceitar requisições
+  
+  // --- CONFIGURAÇÕES ---
+  app.use(cors()); // Importante para o navegador não bloquear o site
+  app.use(express.json());
 
 // --- ROTAS DA API ---
 
@@ -113,6 +115,13 @@ app.post("/awards/:id/votar", async (req, res) => {
   }
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  });
+}
+
+// Chama a função para iniciar o servidor
+iniciar().catch(err => {
+  console.error("❌ Erro ao iniciar servidor:", err);
+  process.exit(1);
 });
