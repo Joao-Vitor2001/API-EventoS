@@ -1,7 +1,7 @@
 require('dotenv').config(); // Carrega variáveis de ambiente do .env
 
 const express = require('express');
-const cors = require('cors'); // Certifique-se de que rodou: npm install cors
+const cors = require('cors');
 const eventoService = require('./SERVICES/eventoService');
 const awardsService = require('./SERVICES/awardsService');
 const { connectDB } = require("./db");
@@ -9,13 +9,18 @@ const { connectDB } = require("./db");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// --- CONFIGURAÇÕES ---
+app.use(cors());
+app.use(express.json());
+
 // --- INICIALIZAR SERVIDOR ---
 async function iniciar() {
   await connectDB(); // Aguarda conexão com MongoDB ANTES de aceitar requisições
   
-  // --- CONFIGURAÇÕES ---
-  app.use(cors()); // Importante para o navegador não bloquear o site
-  app.use(express.json());
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  });
+}
 
 // --- ROTAS DA API ---
 
@@ -114,11 +119,6 @@ app.post("/awards/:id/votar", async (req, res) => {
     res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
   }
 });
-
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  });
-}
 
 // Chama a função para iniciar o servidor
 iniciar().catch(err => {
