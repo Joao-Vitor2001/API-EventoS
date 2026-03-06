@@ -105,6 +105,17 @@
             padding: 8px 15px;
         }
 
+        .btn-vou-junto {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            margin-right: 5px;
+        }
+
+        .btn-vou-junto:hover {
+            background: #2980b9;
+        }
+
         .btn-del {
             background: #e74c3c;
             color: white;
@@ -393,6 +404,10 @@
                 ✏️ Editar
               </button>
 
+              <button class="btn-vou-junto" onclick="vouJunto('${eventoId}', '${participantesTexto}')">
+                ✋ Vou Junto
+              </button>
+
               <button class="btn-del" onclick="deletarEvento('${eventoId}')">
                 🗑️ Excluir
               </button>
@@ -454,6 +469,49 @@
             } catch (e) {
                 console.error(e);
                 alert("Erro de conexão. O servidor pode estar reiniciando.");
+            }
+        }
+
+        async function vouJunto(id, participantesAtuais) {
+            const nome = prompt("Qual é o seu nome?");
+            
+            if (!nome || !nome.trim()) {
+                alert("Nome não pode estar vazio!");
+                return;
+            }
+
+            const nomeFormatado = nome.trim();
+
+            // Separa os participantes atuais
+            const listaAtual = participantesAtuais && participantesAtuais !== "Nenhum" 
+                ? participantesAtuais.split(", ") 
+                : [];
+
+            // Verifica se já está na lista
+            if (listaAtual.includes(nomeFormatado)) {
+                alert("Você já está marcado como participante!");
+                return;
+            }
+
+            // Adiciona o novo participante
+            listaAtual.push(nomeFormatado);
+
+            try {
+                const res = await fetch(`${EVENTOS_URL}/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ participantes: listaAtual }),
+                });
+
+                if (res.ok) {
+                    alert("✅ Você foi adicionado ao evento!");
+                    carregarEventos();
+                } else {
+                    alert("Erro ao adicionar. Tente novamente!");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão");
             }
         }
 
