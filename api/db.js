@@ -1,16 +1,21 @@
-const { MongoClient } = require("mongodb");
+const mongoose = require("mongoose");
 
 const uri = process.env.MONGO_URI;
-const client = new MongoClient(uri, { tls: true });
 
 let db;
 
 async function connectDB() {
   if (db) return db;
-  await client.connect();
-  db = client.db("roots");
-  console.log("🟢 MongoDB conectado");
-  return db;
+  
+  try {
+    await mongoose.connect(uri);
+    console.log("🟢 MongoDB conectado com Mongoose");
+    db = mongoose.connection;
+    return db;
+  } catch (error) {
+    console.error("❌ Erro ao conectar ao MongoDB:", error.message);
+    throw error;
+  }
 }
 
 function getDB() {
