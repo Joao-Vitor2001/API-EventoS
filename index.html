@@ -75,6 +75,23 @@
             background: #f9fffb;
         }
 
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        select:focus {
+            border-color: var(--primary);
+            background: #f9fffb;
+        }
+
         button {
             padding: 12px;
             border: none;
@@ -218,6 +235,76 @@
             display: none;
         }
 
+        /* LOGIN MODAL */
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .login-modal.hidden {
+            display: none;
+        }
+
+        .login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .login-card h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .login-card input {
+            margin-bottom: 10px;
+        }
+
+        .login-card button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+        }
+
+        .login-card button:hover {
+            background: var(--dark-green);
+        }
+
+        .user-info {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 12px;
+            color: white;
+            background: var(--primary);
+            padding: 8px 12px;
+            border-radius: 20px;
+            z-index: 50;
+        }
+
+        .user-info button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 0;
+            margin-left: 10px;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         .p-item {
             display: flex;
             align-items: center;
@@ -255,6 +342,39 @@
 </head>
 
 <body>
+
+    <!-- MODAL DE LOGIN -->
+    <div id="login-modal" class="login-modal">
+        <div class="login-card">
+            <h2>🟢 Amigos Do ROOTS</h2>
+            
+            <!-- FORMULÁRIO DE LOGIN -->
+            <div id="form-login" style="display: block;">
+                <p>Faça login para continuar</p>
+                <input type="text" id="login-input" placeholder="Usuário..." />
+                <input type="password" id="password-input" placeholder="Senha..." />
+                <button onclick="fazerLogin()">Entrar</button>
+                <p id="login-erro" style="color: #e74c3c; font-size: 12px; margin-top: 10px; display:none;"></p>
+            </div>
+
+            <!-- FORMULÁRIO DE CRIAR PRIMEIRO ADMIN -->
+            <div id="form-primeiro-admin" style="display: none;">
+                <p>Crie o primeiro administrador</p>
+                <input type="text" id="admin-nome" placeholder="Seu nome..." />
+                <input type="text" id="admin-login" placeholder="Nome de usuário..." />
+                <input type="password" id="admin-senha" placeholder="Senha..." />
+                <button onclick="criarPrimeiroAdmin()">Criar Admin</button>
+                <p id="admin-erro" style="color: #e74c3c; font-size: 12px; margin-top: 10px; display:none;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- INFORMAÇÃO DO USUÁRIO LOGADO -->
+    <div id="user-info" class="user-info hidden">
+        <span id="user-nome">Usuário</span>
+        <span id="user-admin" style="margin-left: 10px; font-size: 10px; background: #f39c12; padding: 2px 6px; border-radius: 3px; display: none;">ADM</span>
+        <button onclick="fazerLogout()">Sair</button>
+    </div>
 
     <header>
         <h2 id="titulo-aba">Meus Eventos</h2>
@@ -340,9 +460,103 @@
                 <h3>📸 Fotos</h3>
             </div>
         </div>
-        <div id="aba-buscar" class="section">
+
+        <!-- ABA FINANÇAS -->
+        <div id="aba-financas" class="section">
+            <!-- DASHBOARD -->
+            <div class="card" id="dashboard-financas">
+                <h4 style="margin-top:0; color: var(--dark-green); border-bottom: 1px solid #eee; padding-bottom: 10px;">📊 Resumo Financeiro</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="background: #e8f8f5; padding: 15px; border-radius: 10px; text-align: center;">
+                        <p style="color: #7f8c8d; font-size: 12px; margin: 0 0 5px 0;">💰 Renda Total</p>
+                        <h3 style="color: #27ae60; margin: 0;" id="renda-total">R$ 0,00</h3>
+                    </div>
+                    <div style="background: #fadbd8; padding: 15px; border-radius: 10px; text-align: center;">
+                        <p style="color: #7f8c8d; font-size: 12px; margin: 0 0 5px 0;">💸 Gastos Totais</p>
+                        <h3 style="color: #e74c3c; margin: 0;" id="despesa-total">R$ 0,00</h3>
+                    </div>
+                </div>
+                <div style="background: #fef9e7; padding: 15px; border-radius: 10px; text-align: center; margin-top: 15px;">
+                    <p style="color: #7f8c8d; font-size: 12px; margin: 0 0 5px 0;">📈 Rendimento</p>
+                    <h3 style="color: #f39c12; margin: 0;" id="rendimento-total">R$ 0,00</h3>
+                </div>
+            </div>
+
+            <!-- SEÇÃO DE RENDAS -->
             <div class="card">
-                <h3>📍 Buscar</h3>
+                <h4 style="margin-top:0; color: var(--dark-green); border-bottom: 1px solid #eee; padding-bottom: 10px;">💵 Minhas Rendas</h4>
+                
+                <input type="hidden" id="renda-modo" value="novo">
+                <input type="hidden" id="renda-indice">
+                <input type="hidden" id="despesa-modo" value="novo">
+                <input type="hidden" id="despesa-indice">
+
+                <label for="input-renda-descricao">DESCRIÇÃO</label>
+                <input type="text" id="input-renda-descricao" placeholder="Ex: Salário, Freelance, etc.">
+
+                <label for="input-renda-valor">VALOR (R$)</label>
+                <input type="number" id="input-renda-valor" placeholder="0,00" min="0" step="0.01">
+
+                <button class="btn-save" id="btn-renda-confirmar" onclick="salvarRenda()">Adicionar Renda ✅</button>
+                <button id="btn-renda-cancelar" style="display:none; width: 100%; margin-top: 8px; background: #bdc3c7;" onclick="limparFormRenda()">Cancelar Edição</button>
+
+                <div id="lista-rendas" style="margin-top: 15px;"></div>
+            </div>
+
+            <!-- SEÇÃO DE DESPESAS -->
+            <div class="card">
+                <h4 style="margin-top:0; color: var(--dark-green); border-bottom: 1px solid #eee; padding-bottom: 10px;">💳 Adicionar Despesa</h4>
+
+                <label for="input-despesa-descricao">DESCRIÇÃO</label>
+                <input type="text" id="input-despesa-descricao" placeholder="Ex: Supermercado, Cinema, etc.">
+
+                <label for="input-despesa-valor">VALOR (R$)</label>
+                <input type="number" id="input-despesa-valor" placeholder="0,00" min="0" step="0.01">
+
+                <label for="input-despesa-categoria">CATEGORIA</label>
+                <select id="input-despesa-categoria" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 14px;">
+                    <option value="Alimentação">🍔 Alimentação</option>
+                    <option value="Transporte">🚗 Transporte</option>
+                    <option value="Diversão">🎬 Diversão</option>
+                    <option value="Saúde">🏥 Saúde</option>
+                    <option value="Educação">📚 Educação</option>
+                    <option value="Outros">📦 Outros</option>
+                </select>
+
+                <button class="btn-save" id="btn-despesa-confirmar" onclick="salvarDespesa()" style="margin-top: 15px;">Registrar Despesa 💳</button>
+                <button id="btn-despesa-cancelar" style="display:none; width: 100%; margin-top: 8px; background: #bdc3c7;" onclick="limparFormDespesa()">Cancelar Edição</button>
+
+                <h4 style="margin-top: 25px; margin-bottom: 15px; color: var(--dark-green); border-bottom: 1px solid #eee; padding-bottom: 10px;">📋 Despesas Recentes</h4>
+                <div id="lista-despesas"></div>
+            </div>
+        </div>
+
+        <!-- ABA ADM -->
+        <div id="aba-adm" class="section">
+            <div class="card">
+                <h4 style="margin-top:0; color: var(--dark-green); border-bottom: 1px solid #eee; padding-bottom: 10px;">👥 Gerenciar Usuários</h4>
+                <button class="btn-save" onclick="mostrarFormNovoUsuario()" style="margin-bottom: 15px;">➕ Novo Usuário</button>
+                <div id="form-novo-usuario" style="display: none; background: #f9fffb; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                    <label for="novo-usuario-nome">NOME</label>
+                    <input type="text" id="novo-usuario-nome" placeholder="Nome completo">
+
+                    <label for="novo-usuario-login">LOGIN</label>
+                    <input type="text" id="novo-usuario-login" placeholder="Nome de usuário">
+
+                    <label for="novo-usuario-senha">SENHA</label>
+                    <input type="password" id="novo-usuario-senha" placeholder="Senha">
+
+                    <label for="novo-usuario-email">EMAIL</label>
+                    <input type="email" id="novo-usuario-email" placeholder="Email">
+
+                    <label for="novo-usuario-admin">
+                        <input type="checkbox" id="novo-usuario-admin"> Administrador
+                    </label>
+
+                    <button class="btn-save" onclick="criarNovoUsuario()">Criar Usuário ✅</button>
+                    <button style="width: 100%; margin-top: 8px; background: #bdc3c7;" onclick="document.getElementById('form-novo-usuario').style.display='none'">Cancelar</button>
+                </div>
+                <div id="lista-usuarios"></div>
             </div>
         </div>
     </div>
@@ -351,16 +565,488 @@
         <button class="nav-item active-nav" onclick="navegar('eventos', 'Meus Eventos', this)"><i>📅</i>Eventos</button>
         <button class="nav-item" onclick="navegar('ranking', 'Ranking', this)"><i>🏆</i>Awards</button>
         <button class="nav-item" onclick="navegar('fotos', 'Fotos', this)"><i>🖼️</i>Fotos</button>
-        <button class="nav-item" onclick="navegar('buscar', 'Buscar', this)"><i>📍</i>Buscar</button>
+        <button class="nav-item" onclick="navegar('financas', 'Finanças', this)"><i>💰</i>Finanças</button>
+        <button id="btn-adm" class="nav-item" onclick="navegar('adm', 'Administração', this)" style="display: none;"><i>⚙️</i>ADM</button>
     </nav>
 
     <script> // javascript para interatividade e conexão com a API
         // URL base da sua API no Render
         const API_BASE = "https://api-eventos-9ket.onrender.com";
 
-        // Endpoint correto de eventos/AWARDS
+        // Endpoints
         const EVENTOS_URL = `${API_BASE}/eventos`;
         const AWARDS_URL = `${API_BASE}/awards`;
+        const FINANCAS_API_BASE = `${API_BASE}/financas`;
+        const AUTH_BASE = `${API_BASE}/auth`;
+
+        // ===== VARIÁVEIS GLOBAIS =====
+        let usuarioLogado = null;
+        let token = null;
+
+        function getAuthHeader() {
+            return { "Authorization": `Bearer ${token}` };
+        }
+
+        // ===== FINANÇAS FUNCTIONS =====
+        async function carregarFinancas() {
+            if (!usuarioLogado) return;
+
+            try {
+                const res = await fetch(`${FINANCAS_API_BASE}/${usuarioLogado.nome}`, {
+                    headers: { ...getAuthHeader() }
+                });
+                if (!res.ok) throw new Error("Erro ao carregar finanças");
+
+                const dados = await res.json();
+                atualizarDashboard(dados.resumo);
+                renderizarRendas(dados.rendas);
+                renderizarDespesas(dados.despesas);
+            } catch (e) {
+                console.error(e);
+                document.getElementById("lista-rendas").innerHTML = "<p style='color:red;'>⚠️ Erro ao carregar finanças</p>";
+            }
+        }
+
+        function atualizarDashboard(resumo) {
+            document.getElementById("renda-total").innerText = `R$ ${resumo.rendaTotal.toFixed(2).replace(".", ",")}`;
+            document.getElementById("despesa-total").innerText = `R$ ${resumo.despesaTotal.toFixed(2).replace(".", ",")}`;
+            
+            const classe = resumo.rendimento >= 0 ? "#27ae60" : "#e74c3c";
+            const rendimentoElement = document.getElementById("rendimento-total");
+            rendimentoElement.innerText = `R$ ${resumo.rendimento.toFixed(2).replace(".", ",")}`;
+            rendimentoElement.style.color = classe;
+        }
+
+        function renderizarRendas(rendas) {
+            const listaDiv = document.getElementById("lista-rendas");
+            
+            if (!rendas || rendas.length === 0) {
+                listaDiv.innerHTML = "<p style='text-align:center; color:#95a5a6;'>Nenhuma renda adicionada ainda.</p>";
+                return;
+            }
+
+            if (rendas.length >= 5) {
+                listaDiv.innerHTML = "<p style='background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;'>⚠️ Limite de 5 rendas atingido!</p>" + rendas.map((r, idx) => `
+                <div class="card" style="background: ${r.ativo ? '#f0fff0' : '#f5f5f5'}; margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: var(--dark-green);">${escapeHtml(r.descricao)}</strong><br>
+                            <span style="color: #7f8c8d; font-size: 12px;">R$ ${r.valor.toFixed(2).replace(".", ",")}</span>
+                            <span style="color: #7f8c8d; font-size: 11px; margin-left: 10px;">${r.ativo ? '✅ Ativa' : '⏸️ Pausada'}</span>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="${r.ativo ? 'btn-del' : 'btn-vou-junto'}" style="padding: 6px 12px;" onclick="alternarStatusRenda(${idx}, ${!r.ativo})">${r.ativo ? '⏸️' : '▶️'}</button>
+                            <button class="btn-edit" style="padding: 6px 12px;" onclick="prepararEdicaoRenda(${idx}, '${escapeHtml(r.descricao)}', ${r.valor})">✏️</button>
+                            <button class="btn-del" style="padding: 6px 12px;" onclick="deletarRenda(${idx})">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+            } else {
+                listaDiv.innerHTML = rendas.map((r, idx) => `
+                <div class="card" style="background: ${r.ativo ? '#f0fff0' : '#f5f5f5'}; margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: var(--dark-green);">${escapeHtml(r.descricao)}</strong><br>
+                            <span style="color: #7f8c8d; font-size: 12px;">R$ ${r.valor.toFixed(2).replace(".", ",")}</span>
+                            <span style="color: #7f8c8d; font-size: 11px; margin-left: 10px;">${r.ativo ? '✅ Ativa' : '⏸️ Pausada'}</span>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="${r.ativo ? 'btn-del' : 'btn-vou-junto'}" style="padding: 6px 12px;" onclick="alternarStatusRenda(${idx}, ${!r.ativo})">${r.ativo ? '⏸️' : '▶️'}</button>
+                            <button class="btn-edit" style="padding: 6px 12px;" onclick="prepararEdicaoRenda(${idx}, '${escapeHtml(r.descricao)}', ${r.valor})">✏️</button>
+                            <button class="btn-del" style="padding: 6px 12px;" onclick="deletarRenda(${idx})">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+            }
+        }
+
+        function renderizarDespesas(despesas) {
+            const listaDiv = document.getElementById("lista-despesas");
+            
+            if (!despesas || despesas.length === 0) {
+                listaDiv.innerHTML = "<p style='text-align:center; color:#95a5a6;'>Nenhuma despesa registrada.</p>";
+                return;
+            }
+
+            // Ordena por data (mais recentes primeiro)
+            const despesasOrdenadas = [...despesas].sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            listaDiv.innerHTML = despesasOrdenadas.map((d, idx) => {
+                const originalIdx = despesas.indexOf(d);
+                const data = new Date(d.data).toLocaleDateString("pt-BR");
+                return `
+                <div class="card" style="margin-top: 10px; border-left-color: #3498db;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${escapeHtml(d.descricao)}</strong><br>
+                            <span style="color: #7f8c8d; font-size: 12px;">${d.categoria} • ${data}</span><br>
+                            <span style="color: #e74c3c; font-weight: bold;">R$ ${d.valor.toFixed(2).replace(".", ",")}</span>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-edit" style="padding: 6px 12px; height: fit-content;" onclick="prepararEdicaoDespesa(${originalIdx}, '${escapeHtml(d.descricao)}', ${d.valor}, '${d.categoria}')">✏️</button>
+                            <button class="btn-del" style="padding: 6px 12px; height: fit-content;" onclick="deletarDespesa(${originalIdx})">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join("");
+        }
+
+        async function salvarRenda() {
+            if (!usuarioLogado) return;
+            const usuario = usuarioLogado.nome;
+            const modo = document.getElementById("renda-modo").value;
+            const descricao = document.getElementById("input-renda-descricao").value.trim();
+            const valor = parseFloat(document.getElementById("input-renda-valor").value);
+
+            if (!descricao || isNaN(valor) || valor <= 0) {
+                alert("Preencha corretamente os campos!");
+                return;
+            }
+
+            try {
+                let url, metodo;
+                if (modo === "novo") {
+                    url = `${FINANCAS_API_BASE}/${usuario}/rendas`;
+                    metodo = "POST";
+                } else {
+                    const indice = document.getElementById("renda-indice").value;
+                    url = `${FINANCAS_API_BASE}/${usuario}/rendas/${indice}`;
+                    metodo = "PUT";
+                }
+
+                const res = await fetch(url, {
+                    method: metodo,
+                    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+                    body: JSON.stringify({ descricao, valor })
+                });
+
+                if (res.ok) {
+                    limparFormRenda();
+                    carregarFinancas();
+                } else {
+                    const erro = await res.json();
+                    alert(`Erro: ${erro.erro}`);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão!");
+            }
+        }
+
+        async function deletarRenda(indice) {
+            if (!confirm("Deseja deletar esta renda?")) return;
+            if (!usuarioLogado) return;
+
+            const usuario = usuarioLogado.nome;
+            try {
+                const res = await fetch(`${FINANCAS_API_BASE}/${usuario}/rendas/${indice}`, {
+                    method: "DELETE",
+                    headers: { ...getAuthHeader() }
+                });
+
+                if (res.ok) {
+                    carregarFinancas();
+                } else {
+                    alert("Erro ao deletar!");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão!");
+            }
+        }
+
+        function prepararEdicaoRenda(indice, descricao, valor) {
+            document.getElementById("renda-modo").value = "editar";
+            document.getElementById("renda-indice").value = indice;
+            document.getElementById("input-renda-descricao").value = descricao;
+            document.getElementById("input-renda-valor").value = valor;
+            document.getElementById("btn-renda-confirmar").innerText = "Salvar Alterações ✅";
+            document.getElementById("btn-renda-cancelar").style.display = "block";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function limparFormRenda() {
+            document.getElementById("renda-modo").value = "novo";
+            document.getElementById("renda-indice").value = "";
+            document.getElementById("input-renda-descricao").value = "";
+            document.getElementById("input-renda-valor").value = "";
+            document.getElementById("btn-renda-confirmar").innerText = "Adicionar Renda ✅";
+            document.getElementById("btn-renda-cancelar").style.display = "none";
+        }
+
+        async function alternarStatusRenda(indice, ativo) {
+            if (!usuarioLogado) return;
+            const usuario = usuarioLogado.nome;
+
+            try {
+                const res = await fetch(`${FINANCAS_API_BASE}/${usuario}/rendas/${indice}/status`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+                    body: JSON.stringify({ ativo })
+                });
+
+                if (res.ok) {
+                    carregarFinancas();
+                } else {
+                    alert("Erro ao alterar status!");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão!");
+            }
+        }
+
+        async function salvarDespesa() {
+            if (!usuarioLogado) return;
+            const usuario = usuarioLogado.nome;
+            const modo = document.getElementById("despesa-modo").value;
+            const descricao = document.getElementById("input-despesa-descricao").value.trim();
+            const valor = parseFloat(document.getElementById("input-despesa-valor").value);
+            const categoria = document.getElementById("input-despesa-categoria").value;
+
+            if (!descricao || isNaN(valor) || valor <= 0) {
+                alert("Preencha corretamente os campos!");
+                return;
+            }
+
+            try {
+                let url, metodo;
+                if (modo === "novo") {
+                    url = `${FINANCAS_API_BASE}/${usuario}/despesas`;
+                    metodo = "POST";
+                } else {
+                    const indice = document.getElementById("despesa-indice").value;
+                    url = `${FINANCAS_API_BASE}/${usuario}/despesas/${indice}`;
+                    metodo = "PUT";
+                }
+
+                const res = await fetch(url, {
+                    method: metodo,
+                    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+                    body: JSON.stringify({ descricao, valor, categoria })
+                });
+
+                if (res.ok) {
+                    limparFormDespesa();
+                    carregarFinancas();
+                } else {
+                    const erro = await res.json();
+                    alert(`Erro: ${erro.erro}`);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão!");
+            }
+        }
+
+        async function deletarDespesa(indice) {
+            if (!confirm("Deseja deletar esta despesa?")) return;
+            if (!usuarioLogado) return;
+
+            const usuario = usuarioLogado.nome;
+            try {
+                const res = await fetch(`${FINANCAS_API_BASE}/${usuario}/despesas/${indice}`, {
+                    method: "DELETE",
+                    headers: { ...getAuthHeader() }
+                });
+
+                if (res.ok) {
+                    carregarFinancas();
+                } else {
+                    alert("Erro ao deletar!");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão!");
+            }
+        }
+
+        function prepararEdicaoDespesa(indice, descricao, valor, categoria) {
+            document.getElementById("despesa-modo").value = "editar";
+            document.getElementById("despesa-indice").value = indice;
+            document.getElementById("input-despesa-descricao").value = descricao;
+            document.getElementById("input-despesa-valor").value = valor;
+            document.getElementById("input-despesa-categoria").value = categoria;
+            document.getElementById("btn-despesa-confirmar").innerText = "Salvar Alterações ✅";
+            document.getElementById("btn-despesa-cancelar").style.display = "block";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function limparFormDespesa() {
+            document.getElementById("despesa-modo").value = "novo";
+            document.getElementById("despesa-indice").value = "";
+            document.getElementById("input-despesa-descricao").value = "";
+            document.getElementById("input-despesa-valor").value = "";
+            document.getElementById("input-despesa-categoria").value = "Outros";
+            document.getElementById("btn-despesa-confirmar").innerText = "Registrar Despesa 💳";
+            document.getElementById("btn-despesa-cancelar").style.display = "none";
+        }
+        async function verificarLogin() {
+            const tokenSalvo = localStorage.getItem("token");
+            const usuarioSalvo = localStorage.getItem("usuarioLogado");
+
+            if (tokenSalvo && usuarioSalvo) {
+                try {
+                    const usuarioData = JSON.parse(usuarioSalvo);
+                    token = tokenSalvo;
+                    usuarioLogado = usuarioData;
+                    mostrarUsuario(usuarioData);
+                } catch (e) {
+                    fazerLogout();
+                }
+            } else {
+                await verificarSistema();
+            }
+        }
+
+        async function verificarSistema() {
+            try {
+                const res = await fetch(`${AUTH_BASE}/usuarios`);
+                
+                if (!res.ok) {
+                    // Se a lista de usuários não está acessível, é porque não há admin
+                    mostrarFormCriarPrimeiroAdmin();
+                } else {
+                    const usuarios = await res.json();
+                    if (usuarios.length === 0) {
+                        mostrarFormCriarPrimeiroAdmin();
+                    } else {
+                        mostrarLoginModal();
+                    }
+                }
+            } catch (e) {
+                // Se der erro, provavelmente é porque não há usuarios
+                console.log("Sistema novo - permitir criar primeiro admin");
+                mostrarFormCriarPrimeiroAdmin();
+            }
+        }
+
+        function mostrarFormCriarPrimeiroAdmin() {
+            document.getElementById("form-login").style.display = "none";
+            document.getElementById("form-primeiro-admin").style.display = "block";
+        }
+
+        async function criarPrimeiroAdmin() {
+            const nome = document.getElementById("admin-nome").value.trim();
+            const login = document.getElementById("admin-login").value.trim();
+            const senha = document.getElementById("admin-senha").value;
+            const erroDiv = document.getElementById("admin-erro");
+            erroDiv.style.display = "none";
+
+            if (!nome || !login || !senha) {
+                erroDiv.innerText = "Preencha todos os campos!";
+                erroDiv.style.display = "block";
+                return;
+            }
+
+            try {
+                const res = await fetch(`${AUTH_BASE}/first-admin`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ nome, login, senha })
+                });
+
+                if (!res.ok) {
+                    const erro = await res.json();
+                    erroDiv.innerText = erro.erro || "Erro ao criar admin!";
+                    erroDiv.style.display = "block";
+                    return;
+                }
+
+                alert("✅ Admin criado! Faça login para continuar.");
+                document.getElementById("admin-nome").value = "";
+                document.getElementById("admin-login").value = "";
+                document.getElementById("admin-senha").value = "";
+                
+                document.getElementById("form-primeiro-admin").style.display = "none";
+                document.getElementById("form-login").style.display = "block";
+            } catch (e) {
+                console.error(e);
+                erroDiv.innerText = "Erro de conexão!";
+                erroDiv.style.display = "block";
+            }
+        }
+
+        async function fazerLogin() {
+            const login = document.getElementById("login-input").value.trim();
+            const senha = document.getElementById("password-input").value;
+            const erroDiv = document.getElementById("login-erro");
+            erroDiv.style.display = "none";
+
+            if (!login || !senha) {
+                erroDiv.innerText = "Usuário e senha são obrigatórios!";
+                erroDiv.style.display = "block";
+                return;
+            }
+
+            try {
+                const res = await fetch(`${AUTH_BASE}/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ login, senha })
+                });
+
+                if (!res.ok) {
+                    const erro = await res.json();
+                    erroDiv.innerText = erro.erro || "Erro ao fazer login!";
+                    erroDiv.style.display = "block";
+                    return;
+                }
+
+                const dados = await res.json();
+                token = dados.token;
+                usuarioLogado = dados.usuario;
+
+                // Salvar no localStorage
+                localStorage.setItem("token", token);
+                localStorage.setItem("usuarioLogado", JSON.stringify(usuarioLogado));
+
+                mostrarUsuario(usuarioLogado);
+                carregarEventos();
+                carregarAwards();
+                carregarFinancas();
+            } catch (e) {
+                console.error(e);
+                erroDiv.innerText = "Erro de conexão!";
+                erroDiv.style.display = "block";
+            }
+        }
+
+        function fazerLogout() {
+            if (confirm("Deseja realmente sair?")) {
+                token = null;
+                usuarioLogado = null;
+                localStorage.removeItem("token");
+                localStorage.removeItem("usuarioLogado");
+                mostrarLoginModal();
+                document.getElementById("login-input").value = "";
+                document.getElementById("password-input").value = "";
+            }
+        }
+
+        function mostrarLoginModal() {
+            document.getElementById("login-modal").classList.remove("hidden");
+            document.getElementById("user-info").classList.add("hidden");
+        }
+
+        function mostrarUsuario(usuarioData) {
+            document.getElementById("login-modal").classList.add("hidden");
+            document.getElementById("user-info").classList.remove("hidden");
+            document.getElementById("user-nome").innerText = `👤 ${usuarioData.nome}`;
+            
+            // Mostrar botão de ADM se for administrador
+            const btnAdm = document.getElementById("btn-adm");
+            if (usuarioData.isAdmin) {
+                btnAdm.style.display = "flex";
+                document.getElementById("user-admin").style.display = "inline-block";
+            } else {
+                btnAdm.style.display = "none";
+                document.getElementById("user-admin").style.display = "none";
+            }
+        }
 
         async function carregarEventos() {
             try {
@@ -445,8 +1131,13 @@
                 participantes: participantesSelecionados
             };
 
+            // Adicionar criador só se for novo evento
+            const metodo = id ? "PUT" : "POST";
+            if (!id) {
+                dadosEvento.criador = usuarioLogado ? usuarioLogado.nome : 'Anônimo';
+            }
+
             try {
-                const metodo = id ? "PUT" : "POST";
                 const url = id ? `${EVENTOS_URL}/${id}` : EVENTOS_URL;
                 
                 console.log("🔍 Salvando evento:", { metodo, url, id, dadosEvento });
@@ -695,6 +1386,10 @@
 
             if (abaId === "ranking") {
                 carregarAwards();
+            } else if (abaId === "financas") {
+                carregarFinancas();
+            } else if (abaId === "adm") {
+                carregarUsuarios();
             }
         }
 
@@ -716,8 +1411,176 @@
                 .replaceAll("&#039;", "'");
         }
 
-        // Carregar dados ao abrir
-        carregarEventos();
+        // ===== FUNÇÕES DE ADM =====
+        function mostrarFormNovoUsuario() {
+            document.getElementById("form-novo-usuario").style.display = "block";
+        }
+
+        async function carregarUsuarios() {
+            const divLista = document.getElementById("lista-usuarios");
+            if (!divLista) return;
+
+            try {
+                const res = await fetch(`${AUTH_BASE}/usuarios`, {
+                    headers: { ...getAuthHeader() }
+                });
+
+                if (!res.ok) throw new Error("Erro ao carregar usuários");
+
+                const usuarios = await res.json();
+
+                if (!usuarios || usuarios.length === 0) {
+                    divLista.innerHTML = "<p style='text-align:center; color:#95a5a6;'>Nenhum usuário cadastrado.</p>";
+                    return;
+                }
+
+                divLista.innerHTML = usuarios.map((u) => `
+                    <div class="card" style="margin-top: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <strong style="color: var(--dark-green);">${escapeHtml(u.nome)}</strong><br>
+                                <span style="color: #7f8c8d; font-size: 12px;">
+                                    Login: <code>${u.login}</code>
+                                    ${u.isAdmin ? ' • <strong style="color: #f39c12;">ADM</strong>' : ''}
+                                    ${!u.ativo ? ' • <strong style="color: #e74c3c;">INATIVO</strong>' : ''}
+                                </span><br>
+                                <span style="color: #7f8c8d; font-size: 11px;">${u.email || 'Sem email'}</span>
+                            </div>
+                            <div style="display: flex; gap: 5px; flex-direction: column;">
+                                <button class="btn-edit" style="padding: 6px 10px; font-size: 12px;" onclick="prepararEdicaoUsuario('${u.id}')">✏️ Editar</button>
+                                <button class="btn-del" style="padding: 6px 10px; font-size: 12px;" onclick="deletarUsuario('${u.id}')">🗑️ Deletar</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join("");
+            } catch (e) {
+                console.error(e);
+                divLista.innerHTML = "<p style='color:red;'>⚠️ Erro ao carregar usuários</p>";
+            }
+        }
+
+        async function criarNovoUsuario() {
+            const nome = document.getElementById("novo-usuario-nome").value.trim();
+            const login = document.getElementById("novo-usuario-login").value.trim();
+            const senha = document.getElementById("novo-usuario-senha").value;
+            const email = document.getElementById("novo-usuario-email").value.trim();
+            const isAdmin = document.getElementById("novo-usuario-admin").checked;
+
+            if (!nome || !login || !senha) {
+                alert("Preencha nome, login e senha!");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${AUTH_BASE}/registrar`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        ...getAuthHeader()
+                    },
+                    body: JSON.stringify({ nome, login, senha, email, isAdmin })
+                });
+
+                if (!res.ok) {
+                    const erro = await res.json();
+                    alert(`Erro: ${erro.erro}`);
+                    return;
+                }
+
+                // Limpar form
+                document.getElementById("novo-usuario-nome").value = "";
+                document.getElementById("novo-usuario-login").value = "";
+                document.getElementById("novo-usuario-senha").value = "";
+                document.getElementById("novo-usuario-email").value = "";
+                document.getElementById("novo-usuario-admin").checked = false;
+                document.getElementById("form-novo-usuario").style.display = "none";
+
+                alert("✅ Usuário criado com sucesso!");
+                carregarUsuarios();
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão!");
+            }
+        }
+
+        async function deletarUsuario(id) {
+            if (!confirm("Deseja deletar este usuário?")) return;
+
+            try {
+                const res = await fetch(`${AUTH_BASE}/usuarios/${id}`, {
+                    method: "DELETE",
+                    headers: { ...getAuthHeader() }
+                });
+
+                if (!res.ok) {
+                    const erro = await res.json();
+                    alert(`Erro: ${erro.erro}`);
+                    return;
+                }
+
+                alert("✅ Usuário deletado!");
+                carregarUsuarios();
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão!");
+            }
+        }
+
+        async function prepararEdicaoUsuario(id) {
+            try {
+                const res = await fetch(`${AUTH_BASE}/usuarios/${id}`, {
+                    headers: { ...getAuthHeader() }
+                });
+
+                if (!res.ok) throw new Error("Erro ao carregar usuário");
+
+                const usuario = await res.json();
+
+                const novaSenha = prompt(`Editar usuário: ${usuario.nome}\n\nDigite a nova senha (deixe em branco para não alterar):`);
+                if (novaSenha === null) return;
+
+                if (novaSenha.length > 0 && novaSenha.length < 4) {
+                    alert("Senha deve ter no mínimo 4 caracteres!");
+                    return;
+                }
+
+                const dados = {};
+                if (novaSenha) dados.senha = novaSenha;
+
+                const res2 = await fetch(`${AUTH_BASE}/usuarios/${id}`, {
+                    method: "PUT",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        ...getAuthHeader()
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                if (!res2.ok) {
+                    const erro = await res2.json();
+                    alert(`Erro: ${erro.erro}`);
+                    return;
+                }
+
+                alert("✅ Usuário atualizado!");
+                carregarUsuarios();
+            } catch (e) {
+                console.error(e);
+                alert("Erro!");
+            }
+        }
+
+        // Executar ao carregar página
+        document.addEventListener("DOMContentLoaded", () => {
+            verificarLogin();
+        });
+
+        // Permitir login com Enter
+        document.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && !document.getElementById("login-modal").classList.contains("hidden")) {
+                fazerLogin();
+            }
+        });
     </script>
 </body>
 
