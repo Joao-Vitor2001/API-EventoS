@@ -37,13 +37,15 @@ const usuarioSchema = new mongoose.Schema(
 );
 
 // Hash de senha antes de salvar
-usuarioSchema.pre("save", function () {
-  if (!this.isModified("senha")) return;
+usuarioSchema.pre("save", function (next) {
+  if (!this.isModified("senha")) return next();
 
   this.senha = crypto
     .createHash("sha256")
     .update(this.senha)
     .digest("hex");
+
+  next();
 });
 
 // Método para verificar senha
