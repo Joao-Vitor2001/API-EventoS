@@ -74,6 +74,17 @@ app.post("/auth/first-admin", async (req, res) => {
   }
 });
 
+// ✅ STATUS DO SISTEMA (público): precisa criar primeiro admin?
+app.get("/auth/bootstrap", async (req, res) => {
+  try {
+    const usuariosExistentes = await usuarioService.listar();
+    res.json({ needsFirstAdmin: usuariosExistentes.length === 0 });
+  } catch (err) {
+    console.error("ERRO GET /auth/bootstrap:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
+  }
+});
+
 // ✅ LOGIN
 app.post("/auth/login", async (req, res) => {
   try {
