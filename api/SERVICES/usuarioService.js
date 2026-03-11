@@ -40,7 +40,6 @@ const usuarioSchema = new mongoose.Schema(
 usuarioSchema.pre("save", function (next) {
   if (!this.isModified("senha")) return next();
 
-  // Usando SHA256 para hash seguro
   this.senha = crypto
     .createHash("sha256")
     .update(this.senha)
