@@ -38,12 +38,21 @@ const financasSchema = new mongoose.Schema(
         },
         categoria: {
           type: String,
-          enum: ["Alimentação", "Transporte", "Diversão", "Saúde", "Educação", "Outros"],
+          enum: ["Dividas Fixas", "Carro", "Diversão", "WeEdS", "festas", "Outros"],
           default: "Outros",
         },
         data: {
           type: Date,
           default: Date.now,
+        },
+        parcelada: {
+          type: Boolean,
+          default: false,
+        },
+        parcelas: {
+          type: Number,
+          min: 1,
+          default: 1,
         },
       },
     ],
@@ -130,7 +139,7 @@ class FinancasService {
   }
 
   // ===== DESPESAS =====
-  async adicionarDespesa(usuario, descricao, valor, categoria) {
+  async adicionarDespesa(usuario, descricao, valor, categoria, parcelada, parcelas) {
     const financas = await this.obterOuCriar(usuario);
 
     if (valor <= 0) {
@@ -142,13 +151,15 @@ class FinancasService {
       valor,
       categoria: categoria || "Outros",
       data: new Date(),
+      parcelada: !!parcelada,
+      parcelas: parcelada ? parcelas || 1 : 1,
     });
 
     await financas.save();
     return this.calcularResumo(financas);
   }
 
-  async atualizarDespesa(usuario, indice, descricao, valor, categoria) {
+  async atualizarDespesa(usuario, indice, descricao, valor, categoria, parcelada, parcelas) {
     const financas = await this.obterOuCriar(usuario);
 
     if (indice < 0 || indice >= financas.despesas.length) {
@@ -162,6 +173,8 @@ class FinancasService {
     financas.despesas[indice].descricao = descricao;
     financas.despesas[indice].valor = valor;
     financas.despesas[indice].categoria = categoria || "Outros";
+    financas.despesas[indice].parcelada = !!parcelada;
+    financas.despesas[indice].parcelas = parcelada ? parcelas || 1 : 1;
 
     await financas.save();
     return this.calcularResumo(financas);
