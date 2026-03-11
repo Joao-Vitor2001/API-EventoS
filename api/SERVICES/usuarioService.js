@@ -36,16 +36,14 @@ const usuarioSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hash de senha antes de salvar
-usuarioSchema.pre("save", function (next) {
-  if (!this.isModified("senha")) return next();
+// Hash de senha antes de salvar (Mongoose 8 - sem next)
+usuarioSchema.pre("save", function () {
+  if (!this.isModified("senha")) return;
 
   this.senha = crypto
     .createHash("sha256")
     .update(this.senha)
     .digest("hex");
-
-  next();
 });
 
 // Método para verificar senha
