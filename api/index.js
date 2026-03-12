@@ -343,7 +343,7 @@ app.delete("/financas/:usuario/rendas/:indice", async (req, res) => {
 app.post("/financas/:usuario/despesas", async (req, res) => {
   try {
     const usuario = req.params.usuario;
-    const { descricao, valor, categoria, parcelada, parcelas } = req.body;
+    const { descricao, valor, categoria, parcelada, parcelas, parcelaAtual } = req.body;
 
     const resultado = await financasService.adicionarDespesa(
       usuario,
@@ -351,7 +351,8 @@ app.post("/financas/:usuario/despesas", async (req, res) => {
       valor,
       categoria,
       parcelada,
-      parcelas
+      parcelas,
+      parcelaAtual
     );
     res.status(201).json(resultado);
   } catch (err) {
@@ -365,7 +366,7 @@ app.put("/financas/:usuario/despesas/:indice", async (req, res) => {
   try {
     const usuario = req.params.usuario;
     const indice = parseInt(req.params.indice);
-    const { descricao, valor, categoria, parcelada, parcelas } = req.body;
+    const { descricao, valor, categoria, parcelada, parcelas, parcelaAtual } = req.body;
 
     const resultado = await financasService.atualizarDespesa(
       usuario,
@@ -374,7 +375,8 @@ app.put("/financas/:usuario/despesas/:indice", async (req, res) => {
       valor,
       categoria,
       parcelada,
-      parcelas
+      parcelas,
+      parcelaAtual
     );
     res.json(resultado);
   } catch (err) {

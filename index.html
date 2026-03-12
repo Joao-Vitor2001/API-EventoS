@@ -539,10 +539,12 @@
                     <option value="Outros">📦 Outros</option>
                 </select>
 
-                <label style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                <div style="display:flex; justify-content: space-between; align-items:center; margin-top:8px;">
+                    <span style="font-size: 12px; color:#7f8c8d; font-weight:bold;">Despesa parcelada?</span>
                     <input type="checkbox" id="input-despesa-parcelada" onchange="toggleParcelas()">
-                    Despesa parcelada?
-                </label>
+                </div>
+
+                <label for="input-despesa-parcelas" style="font-size:11px; color:#7f8c8d; font-weight:bold; margin-top:8px; display:block;">Total de parcelas</label>
                 <select id="input-despesa-parcelas" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 14px; margin-top:5px;" disabled>
                     <option value="1">1x</option>
                     <option value="2">2x</option>
@@ -560,6 +562,9 @@
                     <option value="36">36x</option>
                     <option value="48">48x</option>
                 </select>
+
+                <label for="input-despesa-parcela-atual" style="font-size:11px; color:#7f8c8d; font-weight:bold; margin-top:8px; display:block;">Parcela atual (ex: 5)</label>
+                <input type="number" id="input-despesa-parcela-atual" min="1" step="1" placeholder="Parcela atual" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 14px;" disabled>
 
                     <button class="btn-save" id="btn-despesa-confirmar" onclick="salvarDespesa()" style="margin-top: 15px;">Registrar Despesa 💳</button>
                     <button id="btn-despesa-cancelar" style="display:none; width: 100%; margin-top: 8px; background: #bdc3c7;" onclick="limparFormDespesa()">Cancelar Edição</button>
@@ -715,7 +720,9 @@
             listaDiv.innerHTML = despesasOrdenadas.map((d, idx) => {
                 const originalIdx = despesas.indexOf(d);
                 const data = new Date(d.data).toLocaleDateString("pt-BR");
-                const infoParcelas = d.parcelada && d.parcelas ? ` • ${d.parcelas}x` : "";
+                const infoParcelas = d.parcelada && d.parcelas
+                    ? ` • ${(d.parcelaAtual || 1)}/${d.parcelas}x`
+                    : "";
                 return `
                 <div class="card" style="margin-top: 10px; border-left-color: #3498db;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -848,6 +855,7 @@
             const categoria = document.getElementById("input-despesa-categoria").value;
             const parcelada = document.getElementById("input-despesa-parcelada").checked;
             const parcelas = parcelada ? parseInt(document.getElementById("input-despesa-parcelas").value) || 1 : 1;
+            const parcelaAtual = parcelada ? parseInt(document.getElementById("input-despesa-parcela-atual").value) || 1 : 1;
 
             if (!descricao || isNaN(valor) || valor <= 0) {
                 alert("Preencha corretamente os campos!");
@@ -868,7 +876,7 @@
                 const res = await fetch(url, {
                     method: metodo,
                     headers: { "Content-Type": "application/json", ...getAuthHeader() },
-                    body: JSON.stringify({ descricao, valor, categoria, parcelada, parcelas })
+                    body: JSON.stringify({ descricao, valor, categoria, parcelada, parcelas, parcelaAtual })
                 });
 
                 if (res.ok) {
@@ -927,6 +935,8 @@
             document.getElementById("input-despesa-parcelada").checked = false;
             document.getElementById("input-despesa-parcelas").value = "1";
             document.getElementById("input-despesa-parcelas").disabled = true;
+            document.getElementById("input-despesa-parcela-atual").value = "";
+            document.getElementById("input-despesa-parcela-atual").disabled = true;
             document.getElementById("btn-despesa-confirmar").innerText = "Registrar Despesa 💳";
             document.getElementById("btn-despesa-cancelar").style.display = "none";
         }
@@ -1303,8 +1313,11 @@
         function toggleParcelas() {
             const chk = document.getElementById("input-despesa-parcelada");
             const sel = document.getElementById("input-despesa-parcelas");
-            if (!chk || !sel) return;
-            sel.disabled = !chk.checked;
+            const atual = document.getElementById("input-despesa-parcela-atual");
+            if (!chk || !sel || !atual) return;
+            const ativo = chk.checked;
+            sel.disabled = !ativo;
+            atual.disabled = !ativo;
         }
 
         // =========================
