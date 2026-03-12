@@ -1,5 +1,5 @@
 const { getDB } = require("../db");
-const { ObjectId } = require("mongodb");
+const mongoose = require("mongoose");
 
 async function listarEventos() {
   const db = getDB();
@@ -23,7 +23,7 @@ async function atualizarEvento(id, dadosNovos) {
   const db = getDB(); 
 
   const result = await db.collection("eventos").updateOne(
-    { _id: new ObjectId(id) },
+    { _id: new mongoose.Types.ObjectId(id) },
     { $set: { ...dadosNovos, updatedAt: new Date() } }
   );
 
@@ -34,7 +34,7 @@ async function deletarEvento(id) {
   const db = getDB();
 
   const result = await db.collection("eventos").deleteOne({
-    _id: new ObjectId(id),
+    _id: new mongoose.Types.ObjectId(id),
   });
 
   return result.deletedCount > 0;
