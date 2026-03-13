@@ -19,46 +19,7 @@
             padding-bottom: 90px;
         }
 
-        .container {
-            padding: 15px;
-            max-width: 500px;
-            margin: auto;
-        }
-
-        /* AQUI COLOQUE */
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-
-        .modal-box {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 450px;
-            text-align: center;
-        }
-
-        .modal-box button {
-            margin-top: 15px;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: #2ecc71;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
+        
         header {
             background: var(--primary);
             color: white;
@@ -401,22 +362,6 @@
 
 <body>
 
-    <!-- mensagem inicial de boas vindas -->
-    <div id="boasVindas" class="modal">
-        <div class="modal-content">
-            <h2>Bem-vindo ao Amigos Do ROOTS 🎉</h2>
-
-            <p>
-                Este aplicativo foi criado para organizar eventos entre amigos.
-            </p>
-
-            <p>
-                Aqui você pode criar eventos, acompanhar participantes, registrar momentos e gerenciar suas finanças.
-            </p>
-
-            <button onclick="fecharBoasVindas()">Fechar</button>
-        </div>
-    </div>
 
     <!-- MODAL DE LOGIN -->
     <div id="login-modal" class="login-modal">
@@ -733,11 +678,6 @@
     </nav>
 
     <script> // javascript para interatividade e conexão com a API
-
-        //mensagem de boas vindas 
-        function fecharBoasVindas() {
-            document.getElementById("boasVindasModal").style.display = "none";
-        }
 
         // URL base da sua API no Render
         const API_BASE = "https://api-eventos-9ket.onrender.com";
