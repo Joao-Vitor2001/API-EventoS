@@ -369,6 +369,7 @@
                 <input type="text" id="login-input" placeholder="Usuário..." />
                 <input type="password" id="password-input" placeholder="Senha..." />
                 <button onclick="fazerLogin()">Entrar</button>
+                <button type="button" style="margin-top:8px; width:100%; background:#bdc3c7;" onclick="mostrarCadastro()">Criar conta</button>
                 <p id="login-erro" style="color: #e74c3c; font-size: 12px; margin-top: 10px; display:none;"></p>
             </div>
 
@@ -380,6 +381,18 @@
                 <input type="password" id="admin-senha" placeholder="Senha..." />
                 <button onclick="criarPrimeiroAdmin()">Criar Admin</button>
                 <p id="admin-erro" style="color: #e74c3c; font-size: 12px; margin-top: 10px; display:none;"></p>
+            </div>
+
+            <!-- FORMULÁRIO DE CADASTRO DE USUÁRIO -->
+            <div id="form-cadastro" style="display: none;">
+                <p>Crie sua conta</p>
+                <input type="text" id="cadastro-nome" placeholder="Seu nome..." />
+                <input type="text" id="cadastro-login" placeholder="Nome de usuário..." />
+                <input type="email" id="cadastro-email" placeholder="Email (opcional)..." />
+                <input type="password" id="cadastro-senha" placeholder="Senha..." />
+                <button onclick="cadastrarUsuario()">Cadastrar</button>
+                <button type="button" style="margin-top:8px; width:100%; background:#bdc3c7;" onclick="mostrarTelaLogin()">Já tenho conta</button>
+                <p id="cadastro-erro" style="color: #e74c3c; font-size: 12px; margin-top: 10px; display:none;"></p>
             </div>
         </div>
     </div>
@@ -979,6 +992,19 @@
         function mostrarFormCriarPrimeiroAdmin() {
             document.getElementById("form-login").style.display = "none";
             document.getElementById("form-primeiro-admin").style.display = "block";
+            document.getElementById("form-cadastro").style.display = "none";
+        }
+
+        function mostrarCadastro() {
+            document.getElementById("form-login").style.display = "none";
+            document.getElementById("form-primeiro-admin").style.display = "none";
+            document.getElementById("form-cadastro").style.display = "block";
+        }
+
+        function mostrarTelaLogin() {
+            document.getElementById("form-login").style.display = "block";
+            document.getElementById("form-primeiro-admin").style.display = "none";
+            document.getElementById("form-cadastro").style.display = "none";
         }
 
         async function criarPrimeiroAdmin() {
@@ -1060,6 +1086,63 @@
                 carregarEventos();
                 carregarAwards();
                 carregarFinancas();
+            } catch (e) {
+                console.error(e);
+                erroDiv.innerText = "Erro de conexão!";
+                erroDiv.style.display = "block";
+            }
+        }
+
+        async function cadastrarUsuario() {
+            const nome = document.getElementById("cadastro-nome").value.trim();
+            const login = document.getElementById("cadastro-login").value.trim();
+            const email = document.getElementById("cadastro-email").value.trim();
+            const senha = document.getElementById("cadastro-senha").value;
+            const erroDiv = document.getElementById("cadastro-erro");
+            erroDiv.style.display = "none";
+
+            if (!nome || !login || !senha) {
+                erroDiv.innerText = "Preencha nome, usuário e senha.";
+                erroDiv.style.display = "block";
+                return;
+            }
+
+            let localizacao = null;
+            if (navigator.geolocation) {
+                try {
+                    const pos = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 7000 });
+                    });
+                    localizacao = {
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude,
+                        accuracy: pos.coords.accuracy
+                    };
+                } catch (e) {
+                    console.log("Não foi possível obter localização", e);
+                }
+            }
+
+            try {
+                const res = await fetch(`${AUTH_BASE}/signup`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ nome, login, senha, email, localizacao })
+                });
+
+                if (!res.ok) {
+                    const erro = await res.json();
+                    erroDiv.innerText = erro.erro || "Erro ao cadastrar!";
+                    erroDiv.style.display = "block";
+                    return;
+                }
+
+                alert("✅ Cadastro realizado! Agora faça login.");
+                document.getElementById("cadastro-nome").value = "";
+                document.getElementById("cadastro-login").value = "";
+                document.getElementById("cadastro-email").value = "";
+                document.getElementById("cadastro-senha").value = "";
+                mostrarTelaLogin();
             } catch (e) {
                 console.error(e);
                 erroDiv.innerText = "Erro de conexão!";
@@ -1507,7 +1590,10 @@
                                     ${u.isAdmin ? ' • <strong style="color: #f39c12;">ADM</strong>' : ''}
                                     ${!u.ativo ? ' • <strong style="color: #e74c3c;">INATIVO</strong>' : ''}
                                 </span><br>
-                                <span style="color: #7f8c8d; font-size: 11px;">${u.email || 'Sem email'}</span>
+                                <span style="color: #7f8c8d; font-size: 11px;">${u.email || 'Sem email'}</span><br>
+                                <span style="color: #7f8c8d; font-size: 11px;">
+                                    ${u.localizacao && u.localizacao.latitude ? `Origem: ${u.localizacao.latitude.toFixed(3)}, ${u.localizacao.longitude.toFixed(3)}` : 'Origem: não informada'}
+                                </span>
                             </div>
                             <div style="display: flex; gap: 5px; flex-direction: column;">
                                 <button class="btn-edit" style="padding: 6px 10px; font-size: 12px;" onclick="prepararEdicaoUsuario('${u.id}')">✏️ Editar</button>

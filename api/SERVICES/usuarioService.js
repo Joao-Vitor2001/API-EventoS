@@ -24,6 +24,14 @@ const usuarioSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    localizacao: {
+      type: {
+        latitude: Number,
+        longitude: Number,
+        accuracy: Number,
+      },
+      default: null,
+    },
     isAdmin: {
       type: Boolean,
       default: false,
@@ -59,7 +67,7 @@ const Usuario = mongoose.model("Usuario", usuarioSchema);
 
 // ===== SERVIÇO DE USUÁRIOS =====
 class UsuarioService {
-  async criar(nome, login, senha, email = "", isAdmin = false) {
+  async criar(nome, login, senha, email = "", isAdmin = false, localizacao = null) {
     // Validações
     if (!nome || !login || !senha) {
       throw new Error("Nome, login e senha são obrigatórios!");
@@ -86,6 +94,7 @@ class UsuarioService {
       email,
       isAdmin,
       ativo: true,
+      localizacao,
     });
 
     await novoUsuario.save();
@@ -191,6 +200,7 @@ class UsuarioService {
       isAdmin: usuario.isAdmin,
       ativo: usuario.ativo,
       criadoEm: usuario.createdAt,
+      localizacao: usuario.localizacao || null,
     };
   }
 

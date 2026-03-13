@@ -111,12 +111,40 @@ app.post("/auth/login", async (req, res) => {
 // ✅ CRIAR USUÁRIO (APENAS ADMIN)
 app.post("/auth/registrar", verificarToken, verificarAdmin, async (req, res) => {
   try {
-    const { nome, login, senha, email, isAdmin } = req.body;
+    const { nome, login, senha, email, isAdmin, localizacao } = req.body;
 
-    const novoUsuario = await usuarioService.criar(nome, login, senha, email, isAdmin);
+    const novoUsuario = await usuarioService.criar(
+      nome,
+      login,
+      senha,
+      email,
+      isAdmin,
+      localizacao
+    );
     res.status(201).json({ mensagem: "Usuário criado com sucesso!", usuario: novoUsuario });
   } catch (err) {
     console.error("ERRO POST /auth/registrar:", err);
+    res.status(400).json({ erro: err.message });
+  }
+});
+
+// ✅ CADASTRO PÚBLICO DE USUÁRIO (sem precisar estar logado)
+app.post("/auth/signup", async (req, res) => {
+  try {
+    const { nome, login, senha, email, localizacao } = req.body;
+
+    const novoUsuario = await usuarioService.criar(
+      nome,
+      login,
+      senha,
+      email,
+      false,
+      localizacao
+    );
+
+    res.status(201).json({ mensagem: "Cadastro realizado com sucesso!", usuario: novoUsuario });
+  } catch (err) {
+    console.error("ERRO POST /auth/signup:", err);
     res.status(400).json({ erro: err.message });
   }
 });
