@@ -32,6 +32,10 @@ const usuarioSchema = new mongoose.Schema(
       },
       default: null,
     },
+    ultimoAcesso: {
+      type: Date,
+      default: null,
+    },
     isAdmin: {
       type: Boolean,
       default: false,
@@ -134,6 +138,9 @@ class UsuarioService {
       throw new Error("Usuário ou senha inválidos!");
     }
 
+    usuario.ultimoAcesso = new Date();
+    await usuario.save();
+
     return this.formatar(usuario);
   }
 
@@ -201,7 +208,17 @@ class UsuarioService {
       ativo: usuario.ativo,
       criadoEm: usuario.createdAt,
       localizacao: usuario.localizacao || null,
+      ultimoAcesso: usuario.ultimoAcesso || null,
     };
+  }
+
+  async listarOnline(minutosJanela = 10) {
+    const limite = new Date(Date.now() - minutosJanela * 60 * 1000);
+    const usuarios = await Usuario.find({
+      ultimoAcesso: { $gte: limite },
+      localizacao: { $ne: null },
+    }).select("-senha");
+    return usuarios.map((u) => this.formatar(u));
   }
 
   // Gera um JWT simples (base64)

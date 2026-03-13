@@ -160,6 +160,17 @@ app.get("/auth/usuarios", verificarToken, verificarAdmin, async (req, res) => {
   }
 });
 
+// ✅ LISTAR USUÁRIOS ONLINE (público, apenas nome + localização aproximada)
+app.get("/auth/online", async (req, res) => {
+  try {
+    const usuarios = await usuarioService.listarOnline(10); // últimos 10 minutos
+    res.json(usuarios);
+  } catch (err) {
+    console.error("ERRO GET /auth/online:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
+  }
+});
+
 // ✅ OBTER USUÁRIO POR ID (APENAS ADMIN)
 app.get("/auth/usuarios/:id", verificarToken, verificarAdmin, async (req, res) => {
   try {

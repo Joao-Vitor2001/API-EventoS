@@ -616,12 +616,24 @@
                 <div id="lista-usuarios"></div>
             </div>
         </div>
+
+        <!-- ABA BUSCAR -->
+        <div id="aba-buscar" class="section">
+            <div class="card">
+                <h4 style="margin-top:0; color: var(--dark-green); border-bottom: 1px solid #eee; padding-bottom: 10px;">📍 Quem está online</h4>
+                <p style="font-size:12px; color:#7f8c8d; margin-top:0;">
+                    Mostrando usuários que acessaram o app nos últimos 10 minutos e permitiram localização.
+                </p>
+                <div id="lista-online">Carregando usuários online...</div>
+            </div>
+        </div>
     </div>
 
     <nav>
         <button class="nav-item active-nav" onclick="navegar('eventos', 'Meus Eventos', this)"><i>📅</i>Eventos</button>
         <button class="nav-item" onclick="navegar('ranking', 'Ranking', this)"><i>🏆</i>Awards</button>
         <button class="nav-item" onclick="navegar('fotos', 'Fotos', this)"><i>🖼️</i>Fotos</button>
+        <button class="nav-item" onclick="navegar('buscar', 'Buscar Amigos', this)"><i>📍</i>Buscar</button>
         <button class="nav-item" onclick="navegar('financas', 'Finanças', this)"><i>💰</i>Finanças</button>
         <button id="btn-adm" class="nav-item" onclick="navegar('adm', 'Administração', this)" style="display: none;"><i>⚙️</i>ADM</button>
     </nav>
@@ -1534,6 +1546,8 @@
                 carregarAwards();
             } else if (abaId === "financas") {
                 carregarFinancas();
+            } else if (abaId === "buscar") {
+                carregarOnline();
             } else if (abaId === "adm") {
                 carregarUsuarios();
             }
@@ -1555,6 +1569,14 @@
                 .replaceAll("&gt;", ">")
                 .replaceAll("&quot;", '"')
                 .replaceAll("&#039;", "'");
+        }
+
+        function minutosDesde(dataIso) {
+            if (!dataIso) return null;
+            const d = new Date(dataIso);
+            const diffMs = Date.now() - d.getTime();
+            if (diffMs < 0) return 0;
+            return Math.floor(diffMs / 60000);
         }
 
         // ===== FUNÇÕES DE ADM =====
@@ -1649,6 +1671,50 @@
             } catch (e) {
                 console.error(e);
                 alert("Erro de conexão!");
+            }
+        }
+
+        // ===== BUSCAR (USUÁRIOS ONLINE) =====
+        async function carregarOnline() {
+            const div = document.getElementById("lista-online");
+            if (!div) return;
+
+            div.innerHTML = "Carregando usuários online...";
+
+            try {
+                const res = await fetch(`${AUTH_BASE}/online`);
+                if (!res.ok) throw new Error("Erro ao carregar usuários online");
+
+                const usuarios = await res.json();
+
+                if (!usuarios || usuarios.length === 0) {
+                    div.innerHTML = "<p style='text-align:center; color:#95a5a6;'>Ninguém online no momento.</p>";
+                    return;
+                }
+
+                div.innerHTML = usuarios.map(u => {
+                    const minutos = minutosDesde(u.ultimoAcesso);
+                    const tempoTxt = minutos === null
+                        ? ""
+                        : minutos === 0
+                            ? "agora mesmo"
+                            : `${minutos} min atrás`;
+
+                    const locTxt = u.localizacao && u.localizacao.latitude
+                        ? `${u.localizacao.latitude.toFixed(3)}, ${u.localizacao.longitude.toFixed(3)}`
+                        : "Localização desconhecida";
+
+                    return `
+                        <div class="card" style="margin-top:10px;">
+                            <strong style="color: var(--dark-green);">${escapeHtml(u.nome)}</strong><br>
+                            <span style="color:#7f8c8d; font-size:12px;">📍 ${locTxt}</span><br>
+                            <span style="color:#7f8c8d; font-size:11px;">⏱️ ${tempoTxt}</span>
+                        </div>
+                    `;
+                }).join("");
+            } catch (e) {
+                console.error(e);
+                div.innerHTML = "<p style='color:red;'>⚠️ Erro ao carregar usuários online.</p>";
             }
         }
 
