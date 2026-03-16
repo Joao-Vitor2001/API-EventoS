@@ -309,7 +309,7 @@ app.post("/awards/:id/votar", async (req, res) => {
 
 app.delete("/awards/:id", async (req, res) => {
   try {
-    const resultado = await awardsService.Excluir(req.params.id);
+    const resultado = await awardsService.excluir(req.params.id);
 
     if (resultado.deletedCount === 0) {
       return res.status(404).json({ erro: "Award não encontrado" });
