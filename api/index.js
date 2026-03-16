@@ -307,6 +307,21 @@ app.post("/awards/:id/votar", async (req, res) => {
   }
 });
 
+app.delete("/awards/:id", async (req, res) => {
+  try {
+    const resultado = await awardsService.Excluir(req.params.id);
+
+    if (resultado.deletedCount === 0) {
+      return res.status(404).json({ erro: "Award não encontrado" });
+    }
+
+    res.json({ mensagem: "Award excluído com sucesso!" });
+  } catch (err) {
+    console.error("ERRO DELETE /awards/:id:", err);
+    res.status(500).json({ erro: "Internal Server Error", detalhe: err.message });
+  }
+});
+
 // --- FINANÇAS PESSOAIS ---
 // ✅ OBTER finanças do usuário
 app.get("/financas/:usuario", async (req, res) => {
