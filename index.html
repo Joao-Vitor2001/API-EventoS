@@ -422,18 +422,21 @@
     <div id="boasVindasModal" class="modal-overlay">
         <div class="modal-box">
             <h2>Bem-vindo ao Amigos Do ROOTS 🎉</h2>
-              
-              <p>
-                Este app foi criado para reunir seu clã e deixar a convivência com seus amigos mais organizada, divertida e especial.
-              </p>
-              
-              <p>
-                Aqui você pode criar eventos, registrar momentos, participar de premiações entre amigos, acompanhar sua galera e até organizar finanças.
-              </p>
-              
-              <p>
-                O objetivo é ter um espaço só de vocês, para fortalecer a amizade e guardar os melhores momentos do role.
-              </p>
+
+            <p>
+                Este app foi criado para reunir seu clã e deixar a convivência com seus amigos mais organizada,
+                divertida e especial.
+            </p>
+
+            <p>
+                Aqui você pode criar eventos, registrar momentos, participar de premiações entre amigos, acompanhar sua
+                galera e até organizar finanças.
+            </p>
+
+            <p>
+                O objetivo é ter um espaço só de vocês, para fortalecer a amizade e guardar os melhores momentos do
+                role.
+            </p>
 
             <button onclick="fecharBoasVindas()">Começar</button>
         </div>
@@ -1570,17 +1573,26 @@
                 // Ranking por votos
                 awards.sort((a, b) => (b.votos ?? 0) - (a.votos ?? 0));
 
-                divLista.innerHTML = awards.map((a, idx) => `
-      <div class="card">
-        <strong style="font-size:18px; color:var(--dark-green)">${idx + 1}º - ${escapeHtml(a.titulo || a.nome || "Award")}</strong><br>
-        <div class="info-evento">
-          <strong>✅ Votos:</strong> ${a.votos ?? 0}
-        </div>
-        <div style="margin-top:12px; border-top: 1px solid #eee; padding-top: 15px; display:flex; gap:8px;">
-          <button class="btn-save" style="width:auto;" onclick="votarAward('${a.id}')">Votar 👍</button>
-        </div>
+                divLista.innerHTML = awards.map((a, idx) => {
+                    const awardId = a.id || a._id;
+
+                    return `
+    <div class="card">
+      <strong style="font-size:18px; color:var(--dark-green)">
+        ${idx + 1}º - ${escapeHtml(a.titulo || a.nome || "Award")}
+      </strong><br>
+
+      <div class="info-evento">
+        <strong>✅ Votos:</strong> ${a.votos ?? 0}
       </div>
-    `).join("");
+
+      <div style="margin-top:12px; border-top: 1px solid #eee; padding-top: 15px; display:flex; gap:8px;">
+        <button class="btn-save" style="width:auto;" onclick="votarAward('${awardId}')">Votar 👍</button>
+        <button class="btn-del" style="width:auto;" onclick="deletarAward('${awardId}')">Excluir 🗑️</button>
+      </div>
+    </div>
+  `;
+                }).join("");
 
             } catch (e) {
                 console.error(e);
@@ -1633,6 +1645,29 @@
             } catch (e) {
                 console.error(e);
                 alert("Erro de conexão ao votar.");
+            }
+        }
+
+        async function deletarAward(id) {
+            if (!confirm("Deseja realmente excluir este award?")) return;
+
+            try {
+                const res = await fetch(`${AWARDS_URL}/${id}`, {
+                    method: "DELETE"
+                });
+
+                if (!res.ok) {
+                    const txt = await res.text();
+                    console.error("Erro ao excluir award:", txt);
+                    alert("Erro ao excluir award.");
+                    return;
+                }
+
+                alert("✅ Award excluído com sucesso!");
+                carregarAwards();
+            } catch (e) {
+                console.error(e);
+                alert("Erro de conexão ao excluir award.");
             }
         }
 
