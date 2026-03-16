@@ -35,4 +35,16 @@ async function votar(id) {
   return result;
 }
 
-module.exports = { listar, criar, votar };
+async function excluir(id) {
+  const db = getDB();
+
+  if (!ObjectId.isValid(id)) {
+    throw new Error("ID inválido");
+  }
+
+  return db.collection("awards").deleteOne({
+    _id: new ObjectId(id)
+  });
+}
+
+module.exports = { listar, criar, votar, excluir };
