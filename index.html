@@ -1350,6 +1350,9 @@
                     return;
                 }
 
+                const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+                const nomeUsuario = usuarioLogado?.nome?.trim() || "";
+
                 divLista.innerHTML = eventos
                     .map((ev) => {
                         // ✅ Mongo pode vir como _id, e no JSON antigo vinha id
@@ -1359,6 +1362,18 @@
                         const participantesTexto = Array.isArray(ev.participantes)
                             ? (ev.participantes.length ? ev.participantes.join(", ") : "Nenhum")
                             : (ev.participantes || "Nenhum");
+
+                        // ✅ cria lista de participantes para verificar se o usuário já está no evento
+                        const listaParticipantes = Array.isArray(ev.participantes)
+                            ? ev.participantes.map(nome => String(nome).trim())
+                            : (ev.participantes && ev.participantes !== "Nenhum"
+                                ? ev.participantes.split(", ").map(nome => nome.trim())
+                                : []);
+
+                        const jaParticipa = listaParticipantes
+                            .map(n => n.toLowerCase())
+                            .includes(nomeUsuario.toLowerCase());
+
 
                         return `
           <div class="card">
@@ -1378,9 +1393,11 @@
                 ✏️ Editar
               </button>
 
-              <button class="btn-vou-junto" onclick="vouJunto('${eventoId}', '${participantesTexto}')">
+             ${!jaParticipa ? `
+                <button class="btn-vou-junto" onclick="vouJunto('${eventoId}', '${participantesTexto}')">
                 ✋ Vou Junto
-              </button>
+                </button>
+            ` : ""}
 
               <button class="btn-del" onclick="deletarEvento('${eventoId}')">
                 🗑️ Excluir
@@ -1452,45 +1469,46 @@
         }
 
         async function vouJunto(id, participantesAtuais) {
-            const nome = prompt("Qual é o seu nome?");
+            const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
 
-            if (!nome || !nome.trim()) {
-                alert("Nome não pode estar vazio!");
+            if (!usuarioLogado || !usuarioLogado.nome) {
+                alert("Você precisa estar logado para participar do evento.");
                 return;
             }
 
-            const nomeFormatado = nome.trim();
+            const nomeFormatado = usuarioLogado.nome.trim();
 
-            // Separa os participantes atuais
-            const listaAtual = participantesAtuais && participantesAtuais !== "Nenhum"
-                ? participantesAtuais.split(", ")
-                : [];
+            const listaAtual =
+                participantesAtuais && participantesAtuais !== "Nenhum"
+                    ? participantesAtuais.split(", ").map(nome => nome.trim())
+                    : [];
 
-            // Verifica se já está na lista
             if (listaAtual.includes(nomeFormatado)) {
                 alert("Você já está marcado como participante!");
                 return;
             }
 
-            // Adiciona o novo participante
             listaAtual.push(nomeFormatado);
 
             try {
                 const res = await fetch(`${EVENTOS_URL}/${id}`, {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ participantes: listaAtual }),
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        participantes: listaAtual.join(", ")
+                    })
                 });
 
-                if (res.ok) {
-                    alert("✅ Você foi adicionado ao evento!");
-                    carregarEventos();
-                } else {
-                    alert("Erro ao adicionar. Tente novamente!");
+                if (!res.ok) {
+                    throw new Error("Erro ao atualizar participantes");
                 }
+
+                carregarEventos();
             } catch (e) {
                 console.error(e);
-                alert("Erro de conexão");
+                alert("Erro ao entrar no evento.");
             }
         }
 
